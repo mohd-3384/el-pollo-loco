@@ -17,8 +17,10 @@ class DrawableObject {
             this.img = img;
         };
 
+        this.imageCache = this.imageCache || {};
         this.imageCache[path] = img;
     }
+
 
 
     loadImages(imageArray) {

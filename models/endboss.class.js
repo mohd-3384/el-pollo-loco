@@ -9,12 +9,32 @@ class Endboss extends MovableObject {
         '../img/4_enemie_boss_chicken/2_alert/G11.png',
         '../img/4_enemie_boss_chicken/2_alert/G12.png'
     ];
+
+    walkImages = [
+        '../img/4_enemie_boss_chicken/1_walk/G1.png',
+        '../img/4_enemie_boss_chicken/1_walk/G2.png',
+        '../img/4_enemie_boss_chicken/1_walk/G3.png',
+        '../img/4_enemie_boss_chicken/1_walk/G4.png'
+    ];
+
+    deadImages = [
+        '../img/4_enemie_boss_chicken/5_dead/G24.png',
+        '../img/4_enemie_boss_chicken/5_dead/G25.png',
+        '../img/4_enemie_boss_chicken/5_dead/G26.png'
+    ];
+
     currentFrame = 0;
+    hits = 0;
+    isDead = false;
+    activated = false;
+
 
     constructor(x = 2800) {
         super();
         this.loadImage(this.alertImages[0]);
         this.loadImages(this.alertImages);
+        this.loadImages(this.walkImages);
+        this.loadImages(this.deadImages);
 
         this.x = x;
         this.y = 50;
@@ -32,37 +52,88 @@ class Endboss extends MovableObject {
     }
 
 
-    // animateIdle() {
-    //     setInterval(() => {
-    //         const path = this.alertImages[this.currentFrame];
-    //         this.img = this.imageCache[path];
-    //         this.currentFrame = (this.currentFrame + 1) % this.alertImages.length;
-    //     }, 200);
-    // }
     animateIdle() {
-        setInterval(() => {
+        this.idleInterval = setInterval(() => {
+            if (this.isDead) return;
             const path = this.alertImages[this.currentFrame];
             const img = this.imageCache[path];
-
             if (img instanceof HTMLImageElement && img.complete) {
                 this.img = img;
             }
-
             this.currentFrame = (this.currentFrame + 1) % this.alertImages.length;
         }, 200);
     }
 
 
+    activate() {
+        if (this.activated || this.isDead) return;
+        this.activated = true;
+        clearInterval(this.idleInterval);
+        setTimeout(() => this.startWalking(), 3000);
+    }
 
-    // draw(ctx) {
-    //     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    // }
+
+    startWalking() {
+        this.walkInterval = setInterval(() => {
+            if (this.isDead) return;
+            const path = this.walkImages[this.currentFrame % this.walkImages.length];
+            const img = this.imageCache[path];
+            if (img instanceof HTMLImageElement && img.complete) {
+                this.img = img;
+            }
+            this.currentFrame++;
+
+            if (this.x > world.character.x + 100) {
+                this.x -= 10;
+            }
+        }, 200);
+    }
+
+
+    hitByBottle() {
+        if (this.isDead) return;
+        this.hits++;
+        if (this.hits >= 3) {
+            this.die();
+        }
+    }
+
+
+    die() {
+        this.isDead = true;
+        clearInterval(this.walkInterval);
+        this.currentFrame = 0;
+        this.deathInterval = setInterval(() => {
+            const path = this.deadImages[this.currentFrame];
+            const img = this.imageCache[path];
+            if (img instanceof HTMLImageElement && img.complete) {
+                this.img = img;
+            }
+            this.currentFrame++;
+
+            if (this.currentFrame >= this.deadImages.length) {
+                clearInterval(this.deathInterval);
+                this.fallDown();
+            }
+        }, 250);
+    }
+
+
+    fallDown() {
+        const fall = setInterval(() => {
+            this.y += 5;
+            if (this.y > 500) {
+                clearInterval(fall);
+                showVictoryScreen?.();
+            }
+        }, 1000 / 60);
+    }
+
+
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) {
-            // console.warn('Endboss-Bild nicht bereit:', this.img);
             return;
         }
-
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 }

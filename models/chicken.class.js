@@ -25,6 +25,9 @@ class Chicken extends MovableObject {
             height: this.height - 8
         };
 
+        this.deadImagePath = '../img/3_enemies_chicken/chicken_normal/2_dead/dead.png';
+        this.loadImage(this.deadImagePath);
+
         this.animateWalk();
         setTimeout(() => {
             this.moveLeftLoop(750);
@@ -32,15 +35,13 @@ class Chicken extends MovableObject {
     }
 
 
-    // animateWalk() {
-    //     setInterval(() => {
-    //         const path = this.walkImages[this.currentWalkFrame];
-    //         this.img = this.imageCache[path];
-    //         this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
-    //     }, 150);
-    // }
     animateWalk() {
-        setInterval(() => {
+        this.walkInterval = setInterval(() => {
+            if (this.dead) {
+                clearInterval(this.walkInterval);
+                return;
+            }
+
             const path = this.walkImages[this.currentWalkFrame];
             const img = this.imageCache[path];
 
@@ -52,4 +53,35 @@ class Chicken extends MovableObject {
         }, 150);
     }
 
+
+    die() {
+        if (this.dead) return;
+        this.dead = true;
+
+        if (this.walkInterval) {
+            clearInterval(this.walkInterval);
+            this.walkInterval = null;
+        }
+
+        const img = this.imageCache[this.deadImagePath];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        } else {
+            console.warn('❌ Dead-Image nicht im Cache:', this.deadImagePath);
+        }
+
+        setTimeout(() => {
+            const idx = world.enemies.indexOf(this);
+            if (idx > -1) {
+                world.enemies.splice(idx, 1);
+            }
+        }, 400);
+    }
+
+
+    draw(ctx) {
+        if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
+
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+    }
 }

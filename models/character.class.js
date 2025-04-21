@@ -5,12 +5,14 @@ function initKeyboardControls() {
         if (e.code === 'ArrowRight') keyboard.RIGHT = true;
         if (e.code === 'ArrowLeft') keyboard.LEFT = true;
         if (e.code === 'Space') keyboard.SPACE = true;
+        if (e.code === 'KeyD') keyboard.D = true;
     });
 
     window.addEventListener("keyup", e => {
         if (e.code === 'ArrowRight') keyboard.RIGHT = false;
         if (e.code === 'ArrowLeft') keyboard.LEFT = false;
         if (e.code === 'Space') keyboard.SPACE = false;
+        if (e.code === 'KeyD') keyboard.D = false;
     });
 }
 
@@ -50,7 +52,6 @@ class Character extends MovableObject {
         '../img/2_character_pepe/3_jump/J-39.png'
     ];
 
-    startSound = new Audio('../audio/pepe-start.mp3');
     walkSound = new Audio('../audio/walking.mp3');
     jumpSound = new Audio('../audio/jump.mp3');
     deadSound = new Audio('../audio/pepescream.mp3');
@@ -69,6 +70,9 @@ class Character extends MovableObject {
 
     isHurt = false;
     hurtInterval = null;
+    coins = 0;
+    bottles = 0;
+    canThrow = true;
 
 
     constructor() {
@@ -112,10 +116,8 @@ class Character extends MovableObject {
 
     animate() {
         setInterval(() => {
-            // Tot? Dann keine Animation mehr!
             if (this.currentAnimation === 'dead' || this.isDead) return;
 
-            // Hurt hat höchste Priorität
             if (this.isHurt) {
                 const hurtPath = this.hurtImages[this.currentIdleFrame % this.hurtImages.length];
                 const hurtImg = this.imageCache[hurtPath];
@@ -128,7 +130,6 @@ class Character extends MovableObject {
                 return;
             }
 
-            // Normale Bewegungsanimationen
             switch (this.currentAnimation) {
                 case 'walk':
                     const walkImg = this.imageCache[this.walkImages[this.currentWalkFrame]];
@@ -146,7 +147,7 @@ class Character extends MovableObject {
                     this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
                     break;
 
-                default: // idle
+                default:
                     const idleImg = this.imageCache[this.idleImages[this.currentIdleFrame]];
                     if (idleImg instanceof HTMLImageElement && idleImg.complete) {
                         this.img = idleImg;
@@ -155,7 +156,6 @@ class Character extends MovableObject {
             }
         }, 100);
     }
-
 
 
     checkKeyboard() {
@@ -186,6 +186,10 @@ class Character extends MovableObject {
 
             if (keyboard.SPACE) {
                 this.jump();
+            }
+
+            if (keyboard.D && this.canThrow) {
+                this.throwBottle();
             }
 
             if (this.isJumping()) {
@@ -323,7 +327,6 @@ class Character extends MovableObject {
             i = (i + 1) % this.hurtImages.length;
         }, 300);
 
-        // Hurt-Zustand endet nach 1,5 Sek → sofort gültiges Idle-Bild setzen
         setTimeout(() => {
             this.isHurt = false;
 
@@ -335,12 +338,6 @@ class Character extends MovableObject {
             }
         }, 1500);
     }
-
-
-
-
-
-
 
 
     dead() {
@@ -359,10 +356,8 @@ class Character extends MovableObject {
             '../img/2_character_pepe/5_dead/D-56.png',
             '../img/2_character_pepe/5_dead/D-57.png'
         ];
-
         this.loadImages(this.deadImages);
 
-        // Spielt Sound ab
         if (typeof isMuted === 'undefined' || !isMuted) {
             this.deadSound.volume = 0.5;
             this.deadSound.play().catch(e =>
@@ -383,14 +378,14 @@ class Character extends MovableObject {
             if (this.currentDeadFrame >= this.deadImages.length) {
                 clearInterval(this.deadInterval);
                 this.deadInterval = null;
-                this.startDeathFall(); // Jetzt fällt Pepe
+                this.startDeathFall();
             }
         }, 200);
     }
 
 
     startDeathFall() {
-        if (this.fallInterval) return; // Doppelstart verhindern
+        if (this.fallInterval) return;
 
         this.gravity = 1.2;
         this.velocityY = 5;
@@ -404,11 +399,24 @@ class Character extends MovableObject {
                 this.fallInterval = null;
                 this.visible = false;
 
-                // ⛔ Zeige Game Over Screen
                 if (typeof showGameOverScreen === 'function') {
-                    showGameOverScreen(); // Funktion aus ui.js
+                    showGameOverScreen();
                 }
             }
         }, 1000 / 60);
+    }
+
+
+    throwBottle() {
+        if (this.bottles > 0 && this.canThrow) {
+            this.canThrow = false;
+            const direction = this.facingLeft ? -1 : 1;
+            const bottle = new ThrowableObject(this.x + 20, this.y + 20, direction);
+            world.throwables.push(bottle);
+            this.bottles -= 20;
+            world.statusBarBottle.setPercentage(this.bottles);
+
+            setTimeout(() => this.canThrow = true, 500);
+        }
     }
 }

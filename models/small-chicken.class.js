@@ -27,21 +27,22 @@ class SmallChicken extends MovableObject {
             height: this.height - 20
         };
 
+        this.deadImagePath = '../img/3_enemies_chicken/chicken_small/2_dead/dead.png';
+        this.loadImage(this.deadImagePath);
+
         setTimeout(() => {
             this.moveLeftLoop(750);
         }, Math.random() * 1000);
     }
 
 
-    // animateWalk() {
-    //     setInterval(() => {
-    //         const path = this.walkImages[this.currentWalkFrame];
-    //         this.img = this.imageCache[path];
-    //         this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
-    //     }, 150);
-    // }
     animateWalk() {
-        setInterval(() => {
+        this.walkInterval = setInterval(() => {
+            if (this.dead) {
+                clearInterval(this.walkInterval);
+                return;
+            }
+
             const path = this.walkImages[this.currentWalkFrame];
             const img = this.imageCache[path];
 
@@ -51,6 +52,29 @@ class SmallChicken extends MovableObject {
 
             this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
         }, 150);
+    }
+
+
+    die() {
+        if (this.dead) return;
+        this.dead = true;
+
+        if (this.walkInterval) {
+            clearInterval(this.walkInterval);
+            this.walkInterval = null;
+        }
+
+        const img = this.imageCache[this.deadImagePath];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+
+        setTimeout(() => {
+            const idx = world.enemies.indexOf(this);
+            if (idx > -1) {
+                world.enemies.splice(idx, 1);
+            }
+        }, 400);
     }
 
 

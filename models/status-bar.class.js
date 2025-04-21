@@ -52,12 +52,14 @@ class StatusBar extends DrawableObject {
         }
     }
 
+
     setPercentage(percentage) {
         this.percentage = percentage;
         const index = this.resolveImageIndex();
         const path = this.images[index];
         this.img = this.imageCache[path];
     }
+
 
     resolveImageIndex() {
         if (this.percentage >= 100) return 5;

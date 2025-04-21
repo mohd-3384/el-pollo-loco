@@ -7,6 +7,9 @@ class World {
     canvas;
     ctx;
     cameraX = 0;
+    coins = [];
+    bottles = [];
+
 
     constructor(canvas) {
         this.ctx = canvas.getContext('2d');
@@ -18,6 +21,28 @@ class World {
 
         this.initStatusBars();
         this.draw();
+        this.initCoins();
+        this.initBottles();
+        this.throwables = [];
+    }
+
+
+    initCoins() {
+        const coinPositions = [
+            { x: 800, y: 80 },
+            { x: 1200, y: 100 },
+            { x: 1600, y: 120 },
+            { x: 2000, y: 260 },
+            { x: 2400, y: 90 }
+        ];
+
+        this.coins = coinPositions.map(pos => new Coin(pos.x, pos.y));
+    }
+
+
+    initBottles() {
+        const bottlePositions = [1000, 1400, 1800, 2200, 2600];
+        this.bottles = bottlePositions.map(x => new Bottle(x));
     }
 
 
@@ -99,10 +124,13 @@ class World {
         return Math.max(Math.min(0, -this.character.x + padding), maxCam);
     }
 
+
     initStatusBars() {
         this.statusBarHealth = new StatusBar('health', 20, 4);
         this.statusBarCoin = new StatusBar('coin', 20, 54);
         this.statusBarBottle = new StatusBar('bottle', 20, 102);
+        this.statusBarCoin.setPercentage(0);
+        this.statusBarBottle.setPercentage(0);
     }
 
 
@@ -111,16 +139,28 @@ class World {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.cameraX = this.calculateCameraX();
         this.ctx.translate(this.cameraX, 0);
+
         this.drawObjects(this.backgroundObjects);
         this.drawObjects(this.clouds);
+        this.drawObjects(this.coins);
+        this.drawObjects(this.bottles);
         this.drawObjects(this.enemies);
+        this.drawObjects(this.throwables);
         this.character.draw(this.ctx);
         this.endboss.draw(this.ctx);
+
+        this.coins.forEach(c => drawHitbox(c, this.ctx));
+        this.bottles.forEach(b => drawHitbox(b, this.ctx));
+        this.enemies.forEach(e => drawHitbox(e, this.ctx));
+        drawHitbox(this.character, this.ctx);
+
         this.removeOffscreenEnemies();
         this.ctx.translate(-this.cameraX, 0);
+
         this.statusBarHealth.draw(this.ctx);
         this.statusBarCoin.draw(this.ctx);
         this.statusBarBottle.draw(this.ctx);
+
         this.drawFrame = requestAnimationFrame(() => this.draw());
     }
 }

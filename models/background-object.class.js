@@ -14,5 +14,4 @@ class BackgroundObject extends DrawableObject {
         const drawX = Math.round(this.x);
         ctx.drawImage(this.img, drawX, this.y, this.width + 1, this.height);
     }
-
 }

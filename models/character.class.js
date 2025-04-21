@@ -160,7 +160,7 @@ class Character extends MovableObject {
 
     checkKeyboard() {
         setInterval(() => {
-            if (this.isDead) return;
+            if (this.isDead || window.gameOver) return;
 
             if (this.falling) {
                 this.applyGravity();

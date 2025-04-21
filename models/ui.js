@@ -110,8 +110,6 @@ function showVictoryScreen() {
         const btn = replayBtn.querySelector('button');
         if (btn) btn.style.display = 'block';
     }
-
-    // Animation stoppen & Spiel pausieren
     if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character) {
         world.character.walkSound?.pause();
@@ -121,3 +119,43 @@ function showVictoryScreen() {
     hideGameKeys();
     window.gameOver = true;
 }
+
+
+function setupFullscreenToggle() {
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const fullIcon = document.getElementById('fullScreen');
+    const smallIcon = document.getElementById('smallScreen');
+
+    if (!document.fullscreenElement) {
+        canvasWrapper.requestFullscreen().then(() => {
+            fullIcon.style.display = 'none';
+            smallIcon.style.display = 'block';
+        }).catch(err => {
+            console.warn('Fullscreen nicht möglich:', err);
+        });
+    } else {
+        document.exitFullscreen().then(() => {
+            fullIcon.style.display = 'block';
+            smallIcon.style.display = 'none';
+        }).catch(err => {
+            console.warn('Fullscreen verlassen nicht möglich:', err);
+        });
+    }
+}
+
+
+document.addEventListener('fullscreenchange', () => {
+    const fullIcon = document.getElementById('fullScreen');
+    const smallIcon = document.getElementById('smallScreen');
+
+    const isFullscreen = !!document.fullscreenElement;
+
+    if (isFullscreen) {
+        fullIcon.style.display = 'none';
+        smallIcon.style.display = 'block';
+    } else {
+        fullIcon.style.display = 'block';
+        smallIcon.style.display = 'none';
+    }
+});
+

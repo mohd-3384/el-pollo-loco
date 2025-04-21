@@ -16,7 +16,6 @@ body {
 
 }
 
-/* luckiest-guy-regular - latin */
 @font-face {
     font-display: swap;
     font-family: 'Luckiest Guy';
@@ -44,11 +43,10 @@ canvas {
 #gameOverImage,
 #youWon {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 720px;
-    height: 480px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: 10;
     opacity: 1;
     border-radius: 8px;
@@ -80,7 +78,8 @@ canvas {
     object-fit: contain;
 }
 
-#muteIconContainer {
+#muteIconContainer,
+#full {
     position: absolute;
     top: 16px;
     right: 150px;
@@ -94,6 +93,20 @@ canvas {
     align-items: center;
     border: 2px solid black;
     border-radius: 50%;
+}
+
+#full {
+    right: 90px;
+}
+
+#fullScreen {
+    width: 200%;
+    cursor: pointer;
+}
+
+#smallScreen {
+    width: 216%;
+    cursor: pointer;
 }
 
 #muteIcon {
@@ -128,7 +141,8 @@ canvas {
     transition: background-color 0.3s ease;
 }
 
-#replayBtn {
+#replayBtn,
+#smallScreen {
     display: none;
 }
 
@@ -147,5 +161,4 @@ canvas {
     z-index: 100;
     text-shadow: 1px 1px white;
     display: none;
-    /* wichtig! */
 }

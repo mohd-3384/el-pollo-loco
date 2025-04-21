@@ -120,6 +120,7 @@ class Endboss extends MovableObject {
 
 
     fallDown() {
+        window.gameOver = true;
         const fall = setInterval(() => {
             this.y += 5;
             if (this.y > 500) {

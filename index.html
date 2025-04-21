@@ -25,53 +25,52 @@
 </head>
 
 <body>
+    <div id="canvasWrapper">
+        <canvas id="canvas" width="720" height="480"></canvas>
 
-    <body>
-        <div id="canvasWrapper">
-            <canvas id="canvas" width="720" height="480"></canvas>
-
-            <!-- Startbild über dem Canvas -->
-            <div id="startFrame">
-                <img src="./img/9_intro_outro_screens/start/startscreen_1.png" alt="Startscreen">
-            </div>
-
-            <!-- Spiel Anweisung -->
-            <div class="game-instructions" id="gameKeys">
-                <div>Left/Right <=> Arrow keys</div>
-                <div>Jump = Space</div>
-                <div>Throw Salsa Bottle = D</div>
-            </div>
-
-            <!-- Lautsprecher Icon -->
-            <div id="muteIconContainer">
-                <img id="muteIcon" onclick="toggleMute()" src="img/icons/sound-on.png" width="40">
-            </div>
-
-            <!-- Start- und Replay-Button -->
-            <div id="startBtn">
-                <button onclick="startGame()">PLAY</button>
-            </div>
-            <div id="replayBtn">
-                <button onclick="startGame()">REPLAY</button>
-            </div>
-
-            <!-- Game Over Image -->
-            <div id="gameOverImage">
-                <img src="./img/Youwon-youlost/You-lost-b.png" alt="">
-            </div>
-
-            <!-- You won Image -->
-            <div id="youWon">
-                <img src="./img/Youwon-youlost/You-won-A.png" alt="">
-            </div>
+        <!-- Startbild über dem Canvas -->
+        <div id="startFrame">
+            <img src="./img/9_intro_outro_screens/start/startscreen_1.png" alt="Startscreen">
         </div>
 
+        <!-- Spiel Anweisung -->
+        <div class="game-instructions" id="gameKeys">
+            <div>Left/Right <=> Arrow keys</div>
+            <div>Jump = Space</div>
+            <div>Throw Salsa Bottle = D</div>
+        </div>
 
+        <!-- Lautsprecher Icon -->
+        <div id="muteIconContainer">
+            <img id="muteIcon" onclick="toggleMute()" src="img/icons/sound-on.png" width="40">
+        </div>
 
-    </body>
+        <!-- Start-Button -->
+        <div id="startBtn">
+            <button onclick="startGame()">PLAY</button>
+        </div>
 
+        <!--  Replay-Button -->
+        <div id="replayBtn">
+            <button onclick="startGame()">REPLAY</button>
+        </div>
 
+        <!-- Full screen Button -->
+        <div id="full">
+            <img onclick="setupFullscreenToggle()" id="fullScreen" src="img/icons/fullscreen.png" alt="">
+            <img onclick="setupFullscreenToggle()" id="smallScreen" src="img/icons/exitfullscreen.png" alt="">
+        </div>
 
+        <!-- Game Over Image -->
+        <div id="gameOverImage">
+            <img src="./img/Youwon-youlost/You-lost-b.png" alt="">
+        </div>
+
+        <!-- You won Image -->
+        <div id="youWon">
+            <img src="./img/Youwon-youlost/You-won-A.png" alt="">
+        </div>
+    </div>
 
 </body>
 

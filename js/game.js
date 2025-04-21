@@ -5,7 +5,7 @@ const coinSound = new Audio('./audio/coin-collected.mp3');
 const bottleSound = new Audio('./audio/collect-bottle.mp3');
 const boingSound = new Audio('./audio/boing.mp3');
 backgroundMusic.loop = true;
-backgroundMusic.volume = 0.3;
+backgroundMusic.volume = 0.05;
 let isMuted = false;
 const backgroundImagePaths = [];
 
@@ -53,6 +53,7 @@ function toggleMute() {
     });
 
     updateMuteIcon();
+    localStorage.setItem('isMuted', JSON.stringify(isMuted));
 }
 
 
@@ -85,7 +86,7 @@ function initGame() {
     canvas = document.getElementById('canvas');
     world = new World(canvas);
     ctx = canvas.getContext('2d');
-    updateMuteIcon();
+    // updateMuteIcon();
     startCollisionDetection();
 }
 
@@ -94,10 +95,9 @@ function startCollisionDetection() {
     const lastHitBy = new WeakMap();
 
     setInterval(() => {
-        if (!world?.character || !world?.enemies || !world?.endboss) return;
+        if (window.gameOver || !world?.character || !world?.enemies || !world?.endboss) return;
 
         let collisionDetected = false;
-
         const allEnemies = [...world.enemies, world.endboss];
         const pepe = world.character;
 
@@ -113,6 +113,7 @@ function startCollisionDetection() {
                 const enemyTop = enemy.y + (enemy.hitbox?.offsetY || 0);
                 const characterIsAbove = characterMid < enemyTop && pepe.velocityY > 0;
 
+                // 🐔 Chicken/SChicken von oben töten
                 if ((isChicken || isSmallChicken) && characterIsAbove) {
                     playSound(boingSound);
                     enemy.die?.();
@@ -120,6 +121,7 @@ function startCollisionDetection() {
                     return;
                 }
 
+                // 💀 Endboss-Kollision = Tod
                 if (isEndboss) {
                     pepe.energy = 0;
                     world.statusBarHealth.setPercentage(0);
@@ -127,12 +129,14 @@ function startCollisionDetection() {
                     return;
                 }
 
+                // ❌ Frontaler Chicken-Treffer
                 if ((isChicken || isSmallChicken) && !pepe.isHurt && pepe.energy > 0 && !lastHitBy.has(enemy)) {
                     pepe.isHurt = true;
                     pepe.playHurtLoop?.();
                     pepe.energy = Math.max(0, pepe.energy - 15);
                     world.statusBarHealth.setPercentage(pepe.energy);
                     lastHitBy.set(enemy, true);
+
                     if (pepe.energy === 0) pepe.dead();
                 }
 
@@ -145,18 +149,21 @@ function startCollisionDetection() {
             allEnemies.forEach(e => lastHitBy.delete(e));
         }
 
+        // 👀 Endboss aktivieren, wenn Pepe nahe kommt
         if (!world.endboss.activated && world.endboss.x - pepe.x < 700) {
             world.endboss.activate();
         }
 
+        // 🧴 Endboss mit Flasche treffen
         world.throwables = world.throwables.filter(bottle => {
             if (isColliding(bottle, world.endboss)) {
                 world.endboss.hitByBottle();
-                return false;
+                return false; // Entferne Flasche
             }
             return true;
         });
 
+        // 🪙 Coins sammeln
         world.coins = world.coins.filter(coin => {
             if (isColliding(pepe, coin)) {
                 pepe.coins = Math.min(100, pepe.coins + 20);
@@ -167,6 +174,7 @@ function startCollisionDetection() {
             return true;
         });
 
+        // 🍾 Bottles sammeln
         world.bottles = world.bottles.filter(bottle => {
             if (isColliding(pepe, bottle)) {
                 pepe.bottles = Math.min(100, pepe.bottles + 20);
@@ -206,6 +214,7 @@ function isColliding(a, b) {
 async function startGame() {
     hideButtons('startBtn', 'replayBtn');
     hideStartScreen();
+    hideVictoryScreen();
     clearCanvas();
     showGameKeys();
 
@@ -218,7 +227,6 @@ async function startGame() {
     initGame();
     startMusic();
     hideGameOverScreen();
-    hideVictoryScreen();
 }
 
 
@@ -235,3 +243,18 @@ function drawHitbox(obj, ctx) {
     );
     ctx.restore();
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const storedMute = localStorage.getItem('isMuted');
+    if (storedMute !== null) {
+        isMuted = JSON.parse(storedMute);
+        updateMuteIcon();
+    }
+});
+
+
+// TODO: Implementiere ein Button und auch die Funktion, um zum Homepage zurückzukehren
+// TODO: Responsive Design für Mobile und Tablet
+// TODO: Landingscape für Mobile und Tablet
+// TODO: Buttons für Moibile und Tablet

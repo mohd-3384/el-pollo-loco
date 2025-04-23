@@ -65,28 +65,55 @@ class Endboss extends MovableObject {
     }
 
 
+    // activate() {
+    //     if (this.activated || this.isDead) return;
+    //     this.activated = true;
+    //     clearInterval(this.idleInterval);
+    //     setTimeout(() => this.startWalking(), 3000);
+    // }
     activate() {
-        if (this.activated || this.isDead) return;
+        if (this.activated || this.isDead || window.gameOver) return;
         this.activated = true;
         clearInterval(this.idleInterval);
-        setTimeout(() => this.startWalking(), 3000);
+        setTimeout(() => {
+            if (!this.isDead && !window.gameOver && world?.character) {
+                this.startWalking();
+            }
+        }, 3000);
     }
 
 
+    // startWalking() {
+    //     this.walkInterval = setInterval(() => {
+    //         if (this.isDead) return;
+    //         const path = this.walkImages[this.currentFrame % this.walkImages.length];
+    //         const img = this.imageCache[path];
+    //         if (img instanceof HTMLImageElement && img.complete) {
+    //             this.img = img;
+    //         }
+    //         this.currentFrame++;
+
+    //         if (this.x > world.character.x + 100) {
+    //             this.x -= 10;
+    //         }
+    //     }, 200);
+    // }
     startWalking() {
         this.walkInterval = setInterval(() => {
-            if (this.isDead) return;
+            if (this.isDead || window.gameOver || !world?.character) return;
+            const pepe = world.character;
             const path = this.walkImages[this.currentFrame % this.walkImages.length];
             const img = this.imageCache[path];
             if (img instanceof HTMLImageElement && img.complete) {
                 this.img = img;
             }
             this.currentFrame++;
-
-            if (this.x > world.character.x + 100) {
-                this.x -= 10;
+            if (this.x > pepe.x) {
+                this.x -= 2;
+            } else if (this.x < pepe.x) {
+                this.x += 2;
             }
-        }, 200);
+        }, 100);
     }
 
 

@@ -72,14 +72,27 @@ function updateMuteIcon() {
 }
 
 
+// function startMusic() {
+//     if (!backgroundMusic.played.length && !isMuted) {
+//         backgroundMusic.volume = 0.3;
+//         backgroundMusic.play().catch(e =>
+//             console.warn('Musikstart blockiert:', e)
+//         );
+//     }
+// }
 function startMusic() {
-    if (!backgroundMusic.played.length && !isMuted) {
-        backgroundMusic.volume = 0.3;
+    if (isMuted) return;
+
+    backgroundMusic.volume = 0.3;
+
+    if (backgroundMusic.paused || backgroundMusic.ended) {
+        backgroundMusic.currentTime = 0;
         backgroundMusic.play().catch(e =>
             console.warn('Musikstart blockiert:', e)
         );
     }
 }
+
 
 
 function initGame() {
@@ -216,6 +229,7 @@ async function startGame() {
     hideStartScreen();
     hideVictoryScreen();
     clearCanvas();
+    hideHomeButton();
     showGameKeys();
 
     if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
@@ -270,6 +284,12 @@ function goHome() {
 function showHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'flex';
+}
+
+
+function hideHomeButton() {
+    const home = document.getElementById('home');
+    if (home) home.style.display = 'none';
 }
 
 

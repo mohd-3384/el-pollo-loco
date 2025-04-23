@@ -55,6 +55,10 @@ function showGameOverScreen() {
         world.character.walkSound?.pause();
         world.character.jumpSound?.pause();
     }
+    if (backgroundMusic) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+    }
     hideGameKeys();
 
     window.gameOver = true;
@@ -115,6 +119,10 @@ function showVictoryScreen() {
     if (world?.character) {
         world.character.walkSound?.pause();
         world.character.jumpSound?.pause();
+    }
+    if (backgroundMusic) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
     }
 
     hideGameKeys();

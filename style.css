@@ -79,7 +79,8 @@ canvas {
 }
 
 #muteIconContainer,
-#full {
+#full,
+#home {
     position: absolute;
     top: 16px;
     right: 150px;
@@ -99,7 +100,13 @@ canvas {
     right: 90px;
 }
 
-#fullScreen {
+#home {
+    left: 90px;
+    display: none;
+}
+
+#fullScreen,
+#home img {
     width: 200%;
     cursor: pointer;
 }

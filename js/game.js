@@ -245,6 +245,34 @@ function drawHitbox(obj, ctx) {
 }
 
 
+function goHome() {
+    location.reload();
+    // Spiel stoppen
+    if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
+    window.gameOver = true;
+
+    // Audio stoppen
+    world?.character?.walkSound?.pause();
+    world?.character?.jumpSound?.pause();
+    backgroundMusic.pause();
+
+    // Screens zurücksetzen
+    hideButtons('replayBtn');
+    hideVictoryScreen();
+    hideGameOverScreen();
+    clearCanvas();
+    showButtons('startBtn');
+    const startFrame = document.getElementById('startFrame');
+    if (startFrame) startFrame.style.display = 'block';
+}
+
+
+function showHomeButton() {
+    const home = document.getElementById('home');
+    if (home) home.style.display = 'flex';
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const storedMute = localStorage.getItem('isMuted');
     if (storedMute !== null) {
@@ -254,7 +282,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// TODO: Implementiere ein Button und auch die Funktion, um zum Homepage zurückzukehren
 // TODO: Responsive Design für Mobile und Tablet
 // TODO: Landingscape für Mobile und Tablet
-// TODO: Buttons für Moibile und Tablet

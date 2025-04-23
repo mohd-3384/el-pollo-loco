@@ -58,6 +58,7 @@ function showGameOverScreen() {
     hideGameKeys();
 
     window.gameOver = true;
+    showHomeButton();
 }
 
 
@@ -118,6 +119,7 @@ function showVictoryScreen() {
 
     hideGameKeys();
     window.gameOver = true;
+    showHomeButton();
 }
 
 

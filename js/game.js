@@ -43,7 +43,6 @@ function toggleMute() {
         world?.character?.jumpSound,
         backgroundMusic
     ];
-
     sounds.forEach(sound => {
         if (!sound) return;
         sound.volume = isMuted ? 0 : 0.5;
@@ -51,7 +50,6 @@ function toggleMute() {
             sound.play().catch(e => console.warn('Musik konnte nicht erneut gestartet werden:', e));
         }
     });
-
     updateMuteIcon();
     localStorage.setItem('isMuted', JSON.stringify(isMuted));
 }
@@ -74,9 +72,7 @@ function updateMuteIcon() {
 
 function startMusic() {
     if (isMuted) return;
-
     backgroundMusic.volume = 0.3;
-
     if (backgroundMusic.paused || backgroundMusic.ended) {
         backgroundMusic.currentTime = 0;
         backgroundMusic.play().catch(e =>
@@ -228,6 +224,19 @@ async function startGame() {
     initKeyboardControls();
     await preloadImages(backgroundImagePaths);
     initGame();
+
+    const sounds = [
+        world?.character?.startSound,
+        world?.character?.walkSound,
+        world?.character?.jumpSound,
+        backgroundMusic
+    ];
+
+    sounds.forEach(sound => {
+        if (!sound) return;
+        sound.volume = isMuted ? 0 : 0.5;
+    });
+
     startMusic();
     hideGameOverScreen();
 }
@@ -283,36 +292,23 @@ function hideHomeButton() {
 
 async function fullyResetGame() {
     if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
-
-    // Stoppe das Keyboard-Interval
     if (world?.character?.keyboardInterval) {
         clearInterval(world.character.keyboardInterval);
         world.character.keyboardInterval = null;
         world.character.keyboardIntervalStarted = false;
     }
-
-    // Spielzustände zurücksetzen
     window.gameOver = true;
     world = null;
     canvas = null;
     ctx = null;
     keyboard = {};
-    isMuted = false;
-
-    // UI zurücksetzen
     clearCanvas();
     hideButtons('replayBtn');
     hideVictoryScreen();
     hideGameOverScreen();
     hideHomeButton();
-
-    // Audio stoppen
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
-
-    // Lokale Variablen zurücksetzen
-    localStorage.removeItem('isMuted');
-
     await new Promise(resolve => setTimeout(resolve, 50));
 }
 
@@ -328,6 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storedMute !== null) {
         isMuted = JSON.parse(storedMute);
         updateMuteIcon();
+        const sounds = [
+            world?.character?.startSound,
+            world?.character?.walkSound,
+            world?.character?.jumpSound,
+            backgroundMusic
+        ];
+        sounds.forEach(sound => {
+            if (!sound) return;
+            sound.volume = isMuted ? 0 : 0.5;
+        });
     }
 });
 

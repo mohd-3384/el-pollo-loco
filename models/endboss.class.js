@@ -65,12 +65,6 @@ class Endboss extends MovableObject {
     }
 
 
-    // activate() {
-    //     if (this.activated || this.isDead) return;
-    //     this.activated = true;
-    //     clearInterval(this.idleInterval);
-    //     setTimeout(() => this.startWalking(), 3000);
-    // }
     activate() {
         if (this.activated || this.isDead || window.gameOver) return;
         this.activated = true;
@@ -83,21 +77,6 @@ class Endboss extends MovableObject {
     }
 
 
-    // startWalking() {
-    //     this.walkInterval = setInterval(() => {
-    //         if (this.isDead) return;
-    //         const path = this.walkImages[this.currentFrame % this.walkImages.length];
-    //         const img = this.imageCache[path];
-    //         if (img instanceof HTMLImageElement && img.complete) {
-    //             this.img = img;
-    //         }
-    //         this.currentFrame++;
-
-    //         if (this.x > world.character.x + 100) {
-    //             this.x -= 10;
-    //         }
-    //     }, 200);
-    // }
     startWalking() {
         this.walkInterval = setInterval(() => {
             if (this.isDead || window.gameOver || !world?.character) return;
@@ -120,6 +99,7 @@ class Endboss extends MovableObject {
     hitByBottle() {
         if (this.isDead) return;
         this.hits++;
+        console.log('Endboss getroffen! Trefferanzahl:', this.hits);
         if (this.hits >= 3) {
             this.die();
         }

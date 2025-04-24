@@ -72,14 +72,6 @@ function updateMuteIcon() {
 }
 
 
-// function startMusic() {
-//     if (!backgroundMusic.played.length && !isMuted) {
-//         backgroundMusic.volume = 0.3;
-//         backgroundMusic.play().catch(e =>
-//             console.warn('Musikstart blockiert:', e)
-//         );
-//     }
-// }
 function startMusic() {
     if (isMuted) return;
 
@@ -94,12 +86,10 @@ function startMusic() {
 }
 
 
-
 function initGame() {
     canvas = document.getElementById('canvas');
     world = new World(canvas);
     ctx = canvas.getContext('2d');
-    // updateMuteIcon();
     startCollisionDetection();
 }
 
@@ -169,9 +159,10 @@ function startCollisionDetection() {
 
         // 🧴 Endboss mit Flasche treffen
         world.throwables = world.throwables.filter(bottle => {
-            if (isColliding(bottle, world.endboss)) {
+            if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
                 world.endboss.hitByBottle();
-                return false; // Entferne Flasche
+                bottle.alreadyHitEndboss = true;
+                return false; // Flasche entfernen
             }
             return true;
         });
@@ -231,11 +222,9 @@ async function startGame() {
     clearCanvas();
     hideHomeButton();
     showGameKeys();
-
     if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
     world = null;
     window.gameOver = false;
-
     initKeyboardControls();
     await preloadImages(backgroundImagePaths);
     initGame();
@@ -260,24 +249,23 @@ function drawHitbox(obj, ctx) {
 
 
 function goHome() {
-    location.reload();
-    // Spiel stoppen
-    if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     window.gameOver = true;
-
-    // Audio stoppen
+    if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     world?.character?.walkSound?.pause();
     world?.character?.jumpSound?.pause();
     backgroundMusic.pause();
-
-    // Screens zurücksetzen
+    backgroundMusic.currentTime = 0;
+    world = null;
     hideButtons('replayBtn');
     hideVictoryScreen();
     hideGameOverScreen();
     clearCanvas();
-    showButtons('startBtn');
     const startFrame = document.getElementById('startFrame');
-    if (startFrame) startFrame.style.display = 'block';
+    if (startFrame) {
+        startFrame.style.display = 'block';
+    }
+    showButtons('startBtn');
+    hideHomeButton();
 }
 
 
@@ -290,6 +278,48 @@ function showHomeButton() {
 function hideHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'none';
+}
+
+
+async function fullyResetGame() {
+    if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
+
+    // Stoppe das Keyboard-Interval
+    if (world?.character?.keyboardInterval) {
+        clearInterval(world.character.keyboardInterval);
+        world.character.keyboardInterval = null;
+        world.character.keyboardIntervalStarted = false;
+    }
+
+    // Spielzustände zurücksetzen
+    window.gameOver = true;
+    world = null;
+    canvas = null;
+    ctx = null;
+    keyboard = {};
+    isMuted = false;
+
+    // UI zurücksetzen
+    clearCanvas();
+    hideButtons('replayBtn');
+    hideVictoryScreen();
+    hideGameOverScreen();
+    hideHomeButton();
+
+    // Audio stoppen
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+
+    // Lokale Variablen zurücksetzen
+    localStorage.removeItem('isMuted');
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+}
+
+
+async function restartGame() {
+    await fullyResetGame();
+    startGame();
 }
 
 

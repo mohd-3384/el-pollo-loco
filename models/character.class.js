@@ -111,6 +111,7 @@ class Character extends MovableObject {
         ];
 
         this.loadImages(this.hurtImages);
+        this.keyboardIntervalStarted = false;
     }
 
 
@@ -158,40 +159,106 @@ class Character extends MovableObject {
     }
 
 
+    // checkKeyboard() {
+    //     if (this.keyboardIntervalStarted) return;
+    //     this.keyboardIntervalStarted = true;
+
+    //     let previousD = false;
+
+    //     setInterval(() => {
+    //         if (this.isDead || window.gameOver) return;
+
+    //         if (this.falling) {
+    //             this.applyGravity();
+    //             return;
+    //         }
+
+    //         if (keyboard.RIGHT && this.x < 3000) {
+    //             this.x += this.speed;
+    //             this.facingLeft = false;
+    //             this.currentAnimation = 'walk';
+    //             this.playWalkSound();
+    //         } else if (keyboard.LEFT && this.x > this.minX) {
+    //             this.x -= this.speed;
+    //             this.facingLeft = true;
+    //             this.currentAnimation = 'walk';
+    //             this.playWalkSound();
+    //         } else if (this.isJumping()) {
+    //             this.currentAnimation = 'jump';
+    //         } else {
+    //             this.currentAnimation = 'idle';
+    //             this.stopWalkSound();
+    //         }
+
+    //         if (keyboard.SPACE) {
+    //             this.jump();
+    //         }
+
+    //         if (keyboard.D && !previousD && this.canThrow) {
+    //             this.throwBottle();
+    //         }
+
+    //         previousD = keyboard.D;
+
+    //         if (this.isJumping()) {
+    //             this.currentAnimation = 'jump';
+    //         }
+
+    //         this.applyGravity();
+    //     }, 1000 / 60);
+    // }
     checkKeyboard() {
-        setInterval(() => {
+        if (this.keyboardIntervalStarted) return; // Verhindert mehrfaches Starten
+        this.keyboardIntervalStarted = true;
+
+        // Speichere die setInterval-Instanz
+        this.keyboardInterval = setInterval(() => {
             if (this.isDead || window.gameOver) return;
 
+            // Schwerkraft anwenden, wenn Pepe fällt
             if (this.falling) {
                 this.applyGravity();
                 return;
             }
 
+            // Bewegung nach rechts
             if (keyboard.RIGHT && this.x < 3000) {
                 this.x += this.speed;
                 this.facingLeft = false;
                 this.currentAnimation = 'walk';
                 this.playWalkSound();
-            } else if (keyboard.LEFT && this.x > this.minX) {
+            }
+            // Bewegung nach links
+            else if (keyboard.LEFT && this.x > this.minX) {
                 this.x -= this.speed;
                 this.facingLeft = true;
                 this.currentAnimation = 'walk';
                 this.playWalkSound();
-            } else if (this.isJumping()) {
+            }
+            // Springen
+            else if (this.isJumping()) {
                 this.currentAnimation = 'jump';
-            } else {
+            }
+            // Idle-Animation
+            else {
                 this.currentAnimation = 'idle';
                 this.stopWalkSound();
             }
 
+            // Springen mit der Leertaste
             if (keyboard.SPACE) {
                 this.jump();
             }
 
-            if (keyboard.D && this.canThrow) {
+            // Flasche werfen mit der Taste "D"
+            if (keyboard.D && !this.previousD && this.canThrow) {
                 this.throwBottle();
             }
 
+            // Speichert den Zustand der Taste "D"
+            this.previousD = keyboard.D;
+
+            // Schwerkraft anwenden, wenn Pepe springt oder fällt
             if (this.isJumping()) {
                 this.currentAnimation = 'jump';
             }
@@ -409,14 +476,24 @@ class Character extends MovableObject {
 
     throwBottle() {
         if (this.bottles > 0 && this.canThrow) {
+            console.log('Flasche geworfen! Verbleibende Flaschen:', this.bottles);
             this.canThrow = false;
+
             const direction = this.facingLeft ? -1 : 1;
-            const bottle = new ThrowableObject(this.x + 20, this.y + 20, direction);
+            const bottle = new ThrowableObject(this.x + 50, this.y + 80, direction);
             world.throwables.push(bottle);
-            this.bottles -= 20;
+
+            this.bottles = Math.max(0, this.bottles - 20);
             world.statusBarBottle.setPercentage(this.bottles);
 
-            setTimeout(() => this.canThrow = true, 500);
+            setTimeout(() => {
+                this.canThrow = true;
+                console.log('Wurf wieder möglich');
+            }, 500);
+        } else {
+            console.log('Wurf nicht möglich:', { canThrow: this.canThrow, bottles: this.bottles });
         }
     }
+
+
 }

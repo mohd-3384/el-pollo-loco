@@ -35,22 +35,21 @@
         </div>
 
         <!-- Button for landscap modus -->
-        <div class="left-right-container">
+        <div id="mobile-controls">
             <div class="left-container">
-                <img class="left" src="img/icons/leftBtn.png" alt="" id="arrowLeft">
+                <img class="left" onclick="pressButton('LEFT')" src="img/icons/leftBtn.png" alt="" id="arrowLeft">
             </div>
             <div class="right-container">
-                <img class="right" src="img/icons/rightBtn.png" alt="" id="arrowRight">
+                <img class="right" onclick="pressButton('RIGHT')" src="img/icons/rightBtn.png" alt="" id="arrowRight">
             </div>
-        </div>
-        <div class="lower__buttons__right">
             <div class="up-container">
-                <img class="up" src="img/icons/upBtn.png" alt="" id="arrowUp">
+                <img class="up" onclick="pressButton('SPACE')" src="img/icons/upBtn.png" alt="" id="arrowUp">
             </div>
             <div class="throw-container">
-                <img class="throw" src="img/icons/ThrowBtn.png" alt="" id="arrowThrow">
+                <img class="throw" onclick="pressButton('D')" src="img/icons/ThrowBtn.png" alt="" id="arrowThrow">
             </div>
         </div>
+
 
         <!-- Startbild über dem Canvas -->
         <div id="startFrame">

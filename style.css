@@ -111,11 +111,6 @@ canvas {
     cursor: pointer;
 }
 
-#smallScreen {
-    width: 216%;
-    cursor: pointer;
-}
-
 #muteIcon {
     cursor: pointer;
     width: 32px;
@@ -197,6 +192,14 @@ canvas {
     border-radius: 50%;
 }
 
+#mobile-controls {
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    display: none;
+    z-index: 20;
+}
+
 .left-container,
 .right-container,
 .up-container,
@@ -208,7 +211,6 @@ canvas {
     height: 46px;
     padding: 14px;
     background-color: #ffc107;
-    /* display: flex; */
     justify-content: center;
     align-items: center;
     border: 2px solid black;
@@ -220,21 +222,9 @@ canvas {
     left: 12px;
 }
 
-.left-container img {
-    width: 36px;
-    margin-right: 4px;
-    cursor: pointer;
-}
-
 .right-container {
     bottom: 12px;
     left: 66px;
-}
-
-.right-container img,
-.up-container img {
-    width: 36px;
-    cursor: pointer;
 }
 
 .up-container {
@@ -247,6 +237,18 @@ canvas {
     right: 12px;
 }
 
+.left-container img {
+    width: 36px;
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+.right-container img,
+.up-container img {
+    width: 36px;
+    cursor: pointer;
+}
+
 .throw-container img {
     width: 30px;
     cursor: pointer;
@@ -256,5 +258,18 @@ canvas {
     #canvasWrapper {
         width: 100vw;
         height: 100vh;
+    }
+}
+
+@media screen and (max-width: 720px) and (orientation: landscape) {
+    #mobile-controls {
+        display: block;
+    }
+
+    .left-container,
+    .right-container,
+    .up-container,
+    .throw-container {
+        display: flex;
     }
 }

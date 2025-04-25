@@ -253,3 +253,14 @@ function setupOrientationCheck() {
 
 setupOrientationCheck();
 
+
+function pressButton(key) {
+    if (!keyboard) return;
+
+    keyboard[key] = true;
+
+    // Taste automatisch wieder loslassen nach kurzer Zeit
+    setTimeout(() => {
+        keyboard[key] = false;
+    }, 150); // 150ms simuliert gedrückte Taste
+}

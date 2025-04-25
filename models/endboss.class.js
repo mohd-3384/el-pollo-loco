@@ -99,7 +99,6 @@ class Endboss extends MovableObject {
     hitByBottle() {
         if (this.isDead) return;
         this.hits++;
-        console.log('Endboss getroffen! Trefferanzahl:', this.hits);
         if (this.hits >= 3) {
             this.die();
         }

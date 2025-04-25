@@ -118,19 +118,15 @@ class Character extends MovableObject {
     animate() {
         setInterval(() => {
             if (this.currentAnimation === 'dead' || this.isDead) return;
-
             if (this.isHurt) {
                 const hurtPath = this.hurtImages[this.currentIdleFrame % this.hurtImages.length];
                 const hurtImg = this.imageCache[hurtPath];
-
                 if (hurtImg instanceof HTMLImageElement && hurtImg.complete) {
                     this.img = hurtImg;
                 }
-
                 this.currentIdleFrame++;
                 return;
             }
-
             switch (this.currentAnimation) {
                 case 'walk':
                     const walkImg = this.imageCache[this.walkImages[this.currentWalkFrame]];
@@ -139,7 +135,6 @@ class Character extends MovableObject {
                     }
                     this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
                     break;
-
                 case 'jump':
                     const jumpImg = this.imageCache[this.jumpImages[this.currentJumpFrame]];
                     if (jumpImg instanceof HTMLImageElement && jumpImg.complete) {
@@ -147,7 +142,6 @@ class Character extends MovableObject {
                     }
                     this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
                     break;
-
                 default:
                     const idleImg = this.imageCache[this.idleImages[this.currentIdleFrame]];
                     if (idleImg instanceof HTMLImageElement && idleImg.complete) {
@@ -159,106 +153,48 @@ class Character extends MovableObject {
     }
 
 
-    // checkKeyboard() {
-    //     if (this.keyboardIntervalStarted) return;
-    //     this.keyboardIntervalStarted = true;
-
-    //     let previousD = false;
-
-    //     setInterval(() => {
-    //         if (this.isDead || window.gameOver) return;
-
-    //         if (this.falling) {
-    //             this.applyGravity();
-    //             return;
-    //         }
-
-    //         if (keyboard.RIGHT && this.x < 3000) {
-    //             this.x += this.speed;
-    //             this.facingLeft = false;
-    //             this.currentAnimation = 'walk';
-    //             this.playWalkSound();
-    //         } else if (keyboard.LEFT && this.x > this.minX) {
-    //             this.x -= this.speed;
-    //             this.facingLeft = true;
-    //             this.currentAnimation = 'walk';
-    //             this.playWalkSound();
-    //         } else if (this.isJumping()) {
-    //             this.currentAnimation = 'jump';
-    //         } else {
-    //             this.currentAnimation = 'idle';
-    //             this.stopWalkSound();
-    //         }
-
-    //         if (keyboard.SPACE) {
-    //             this.jump();
-    //         }
-
-    //         if (keyboard.D && !previousD && this.canThrow) {
-    //             this.throwBottle();
-    //         }
-
-    //         previousD = keyboard.D;
-
-    //         if (this.isJumping()) {
-    //             this.currentAnimation = 'jump';
-    //         }
-
-    //         this.applyGravity();
-    //     }, 1000 / 60);
-    // }
     checkKeyboard() {
-        if (this.keyboardIntervalStarted) return; // Verhindert mehrfaches Starten
+        if (this.keyboardIntervalStarted) return;
         this.keyboardIntervalStarted = true;
 
-        // Speichere die setInterval-Instanz
         this.keyboardInterval = setInterval(() => {
             if (this.isDead || window.gameOver) return;
 
-            // Schwerkraft anwenden, wenn Pepe fällt
             if (this.falling) {
                 this.applyGravity();
                 return;
             }
 
-            // Bewegung nach rechts
             if (keyboard.RIGHT && this.x < 3000) {
                 this.x += this.speed;
                 this.facingLeft = false;
                 this.currentAnimation = 'walk';
                 this.playWalkSound();
             }
-            // Bewegung nach links
             else if (keyboard.LEFT && this.x > this.minX) {
                 this.x -= this.speed;
                 this.facingLeft = true;
                 this.currentAnimation = 'walk';
                 this.playWalkSound();
             }
-            // Springen
             else if (this.isJumping()) {
                 this.currentAnimation = 'jump';
             }
-            // Idle-Animation
             else {
                 this.currentAnimation = 'idle';
                 this.stopWalkSound();
             }
 
-            // Springen mit der Leertaste
             if (keyboard.SPACE) {
                 this.jump();
             }
 
-            // Flasche werfen mit der Taste "D"
             if (keyboard.D && !this.previousD && this.canThrow) {
                 this.throwBottle();
             }
 
-            // Speichert den Zustand der Taste "D"
             this.previousD = keyboard.D;
 
-            // Schwerkraft anwenden, wenn Pepe springt oder fällt
             if (this.isJumping()) {
                 this.currentAnimation = 'jump';
             }
@@ -334,7 +270,6 @@ class Character extends MovableObject {
                 this.falling = false;
                 clearInterval(fallInterval);
                 this.currentJumpFrame = 0;
-                console.log('Pepe ist sicher gelandet');
             }
         }, 1000 / 60);
     }
@@ -343,9 +278,7 @@ class Character extends MovableObject {
     playStartSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.startSound.volume = 0.5;
-        this.startSound.play().catch(e =>
-            console.warn('Startsound blockiert:', e)
-        );
+        this.startSound.play().catch(() => { });
     }
 
 
@@ -427,9 +360,7 @@ class Character extends MovableObject {
 
         if (typeof isMuted === 'undefined' || !isMuted) {
             this.deadSound.volume = 0.5;
-            this.deadSound.play().catch(e =>
-                console.warn('Todes-Sound konnte nicht abgespielt werden:', e)
-            );
+            this.deadSound.play().catch(() => { });
         }
 
         this.deadInterval = setInterval(() => {
@@ -476,7 +407,6 @@ class Character extends MovableObject {
 
     throwBottle() {
         if (this.bottles > 0 && this.canThrow) {
-            console.log('Flasche geworfen! Verbleibende Flaschen:', this.bottles);
             this.canThrow = false;
 
             const direction = this.facingLeft ? -1 : 1;
@@ -488,12 +418,7 @@ class Character extends MovableObject {
 
             setTimeout(() => {
                 this.canThrow = true;
-                console.log('Wurf wieder möglich');
             }, 500);
-        } else {
-            console.log('Wurf nicht möglich:', { canThrow: this.canThrow, bottles: this.bottles });
         }
     }
-
-
 }

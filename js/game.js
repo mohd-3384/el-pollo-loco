@@ -47,7 +47,7 @@ function toggleMute() {
         if (!sound) return;
         sound.volume = isMuted ? 0 : 0.5;
         if (sound === backgroundMusic && !isMuted) {
-            sound.play().catch(e => console.warn('Musik konnte nicht erneut gestartet werden:', e));
+            sound.play().catch(() => { });
         }
     });
     updateMuteIcon();
@@ -59,7 +59,7 @@ function playSound(sound, volume = 0.5) {
     if (isMuted || !sound) return;
     sound.volume = volume;
     sound.currentTime = 0;
-    sound.play().catch(e => console.warn('Sound konnte nicht abgespielt werden:', e));
+    sound.play().catch(() => { });
 }
 
 
@@ -75,9 +75,7 @@ function startMusic() {
     backgroundMusic.volume = 0.3;
     if (backgroundMusic.paused || backgroundMusic.ended) {
         backgroundMusic.currentTime = 0;
-        backgroundMusic.play().catch(e =>
-            console.warn('Musikstart blockiert:', e)
-        );
+        backgroundMusic.play().catch(() => { });
     }
 }
 
@@ -212,18 +210,35 @@ function isColliding(a, b) {
 
 
 async function startGame() {
+    window.isPlaying = true;
+
     hideButtons('startBtn', 'replayBtn');
     hideStartScreen();
     hideVictoryScreen();
     clearCanvas();
     hideHomeButton();
-    showGameKeys();
+    updateGameKeysVisibility();
+
     if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
     world = null;
     window.gameOver = false;
+
     initKeyboardControls();
     await preloadImages(backgroundImagePaths);
     initGame();
+
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const isLandscape = window.innerWidth > window.innerHeight;
+
+    if (isMobile && isLandscape && !document.fullscreenElement) {
+        const wrapper = document.getElementById('canvasWrapper');
+        wrapper?.requestFullscreen?.().catch(() => { })
+    }
+
+    const mobileControls = document.getElementById('mobile-controls');
+    if (mobileControls) {
+        mobileControls.style.display = (isMobile && isLandscape) ? 'block' : 'none';
+    }
 
     const sounds = [
         world?.character?.startSound,
@@ -259,22 +274,43 @@ function drawHitbox(obj, ctx) {
 
 function goHome() {
     window.gameOver = true;
+    window.isPlaying = false;
+
+    // Animation & Spiel stoppen
     if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
-    world?.character?.walkSound?.pause();
-    world?.character?.jumpSound?.pause();
+    if (world?.character) {
+        world.character.walkSound?.pause();
+        world.character.jumpSound?.pause();
+    }
+
+    // Musik stoppen
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
+
+    // Welt und Steuerung zurücksetzen
     world = null;
+    const mobileControls = document.getElementById('mobile-controls');
+    if (mobileControls) {
+        mobileControls.style.display = 'none';
+    }
+
+    // UI zurücksetzen
+    hideGameKeys();
     hideButtons('replayBtn');
     hideVictoryScreen();
     hideGameOverScreen();
+    hideHomeButton();
     clearCanvas();
+
+    // Startbild sichtbar machen + Reset von Fade-Effekt
     const startFrame = document.getElementById('startFrame');
     if (startFrame) {
+        startFrame.classList.remove('fade-out');
         startFrame.style.display = 'block';
+        startFrame.style.opacity = '1';
     }
+
     showButtons('startBtn');
-    hideHomeButton();
 }
 
 
@@ -319,9 +355,7 @@ async function restartGame() {
 
     if (isMobile && isLandscape && !document.fullscreenElement) {
         const wrapper = document.getElementById('canvasWrapper');
-        wrapper?.requestFullscreen?.().catch(err =>
-            console.warn('Fullscreen konnte nicht aktiviert werden:', err)
-        );
+        wrapper?.requestFullscreen?.().catch(() => { });
     }
     await fullyResetGame();
     startGame();
@@ -345,7 +379,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-
-// TODO: Responsive Design für Mobile und Tablet
-// TODO: Landingscape für Mobile und Tablet

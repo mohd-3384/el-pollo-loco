@@ -37,19 +37,29 @@
         <!-- Button for landscap modus -->
         <div id="mobile-controls">
             <div class="left-container">
-                <img class="left" onclick="pressButton('LEFT')" src="img/icons/leftBtn.png" alt="" id="arrowLeft">
+                <img class="left" src="img/icons/leftBtn.png" alt="" id="arrowLeft"
+                    onmousedown="handleButtonPress('LEFT')" onmouseup="handleButtonRelease('LEFT')"
+                    ontouchstart="handleButtonPress('LEFT')" ontouchend="handleButtonRelease('LEFT')"
+                    oncontextmenu="return false;" />
             </div>
             <div class="right-container">
-                <img class="right" onclick="pressButton('RIGHT')" src="img/icons/rightBtn.png" alt="" id="arrowRight">
+                <img class="right" src="img/icons/rightBtn.png" alt="" id="arrowRight"
+                    onmousedown="handleButtonPress('RIGHT')" onmouseup="handleButtonRelease('RIGHT')"
+                    ontouchstart="handleButtonPress('RIGHT')" ontouchend="handleButtonRelease('RIGHT')"
+                    oncontextmenu="return false;" />
             </div>
             <div class="up-container">
-                <img class="up" onclick="pressButton('SPACE')" src="img/icons/upBtn.png" alt="" id="arrowUp">
+                <img class="up" src="img/icons/upBtn.png" alt="" id="arrowUp" onmousedown="handleButtonPress('SPACE')"
+                    onmouseup="handleButtonRelease('SPACE')" ontouchstart="handleButtonPress('SPACE')"
+                    ontouchend="handleButtonRelease('SPACE')" oncontextmenu="return false;" />
             </div>
             <div class="throw-container">
-                <img class="throw" onclick="pressButton('D')" src="img/icons/ThrowBtn.png" alt="" id="arrowThrow">
+                <img class="throw" src="img/icons/ThrowBtn.png" alt="" id="arrowThrow"
+                    onmousedown="handleButtonPress('D')" onmouseup="handleButtonRelease('D')"
+                    ontouchstart="handleButtonPress('D')" ontouchend="handleButtonRelease('D')"
+                    oncontextmenu="return false;" />
             </div>
         </div>
-
 
         <!-- Startbild über dem Canvas -->
         <div id="startFrame">

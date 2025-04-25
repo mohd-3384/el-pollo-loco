@@ -47,7 +47,6 @@ class StatusBar extends DrawableObject {
                     `${base}/3_statusbar_bottle/orange/100.png`
                 ];
             default:
-                console.warn(`Unknown status bar type: ${type}`);
                 return [];
         }
     }

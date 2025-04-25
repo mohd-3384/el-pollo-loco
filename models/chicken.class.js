@@ -66,8 +66,6 @@ class Chicken extends MovableObject {
         const img = this.imageCache[this.deadImagePath];
         if (img instanceof HTMLImageElement && img.complete) {
             this.img = img;
-        } else {
-            console.warn('❌ Dead-Image nicht im Cache:', this.deadImagePath);
         }
 
         setTimeout(() => {

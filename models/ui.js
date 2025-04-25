@@ -140,56 +140,38 @@ function setupFullscreenToggle() {
         canvasWrapper.requestFullscreen().then(() => {
             fullIcon.style.display = 'none';
             smallIcon.style.display = 'block';
-        }).catch(err => {
-            console.warn('Fullscreen nicht möglich:', err);
-        });
+        }).catch(() => { });
     } else {
         document.exitFullscreen().then(() => {
             fullIcon.style.display = 'block';
             smallIcon.style.display = 'none';
-        }).catch(err => {
-            console.warn('Fullscreen verlassen nicht möglich:', err);
-        });
+        }).catch(() => { });
     }
 }
-
-
-document.addEventListener('fullscreenchange', () => {
-    const fullIcon = document.getElementById('fullScreen');
-    const smallIcon = document.getElementById('smallScreen');
-
-    const isFullscreen = !!document.fullscreenElement;
-
-    if (isFullscreen) {
-        fullIcon.style.display = 'none';
-        smallIcon.style.display = 'block';
-    } else {
-        fullIcon.style.display = 'block';
-        smallIcon.style.display = 'none';
-    }
-});
 
 
 function checkScreenOrientation() {
     const popup = document.getElementById('landscape-popup');
     const fullDiv = document.getElementById('full');
+    const mobileControls = document.getElementById('mobile-controls');
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isPortrait = window.innerHeight > window.innerWidth;
-    const isSmallScreen = window.innerWidth < 720;
 
-    // 📱 Mobile Portrait
     if (isMobile && isPortrait) {
         popup.style.display = 'flex';
         if (fullDiv) fullDiv.style.display = 'none';
+        if (mobileControls) mobileControls.style.display = 'none';
+        updateGameKeysVisibility();
         if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
         exitFullscreen();
         return;
     }
 
-    // 📱 Mobile Landscape
     if (isMobile && !isPortrait) {
         popup.style.display = 'none';
         if (fullDiv) fullDiv.style.display = 'none';
+        if (mobileControls) mobileControls.style.display = 'block';
+        updateGameKeysVisibility();
         requestFullscreenIfNotActive();
         if (!window.gameOver && world && world.draw) {
             world.drawFrame = requestAnimationFrame(() => world.draw());
@@ -197,19 +179,12 @@ function checkScreenOrientation() {
         return;
     }
 
-    // 💻 Nicht-Mobile (Desktop oder große Tablets)
     popup.style.display = 'none';
     if (fullDiv) fullDiv.style.display = 'flex';
+    if (mobileControls) mobileControls.style.display = 'none';
+    updateGameKeysVisibility();
     if (!window.gameOver && world && world.draw) {
         world.drawFrame = requestAnimationFrame(() => world.draw());
-    }
-
-    if (window.innerWidth < 720) {
-        popup.style.display = 'flex';
-        if (fullDiv) fullDiv.style.display = 'none';
-        if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
-        exitFullscreen();
-        return;
     }
 }
 
@@ -217,18 +192,14 @@ function checkScreenOrientation() {
 function requestFullscreenIfNotActive() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!document.fullscreenElement && wrapper?.requestFullscreen) {
-        wrapper.requestFullscreen().catch(err =>
-            console.warn('Fullscreen konnte nicht aktiviert werden:', err)
-        );
+        wrapper.requestFullscreen().catch(() => { });
     }
 }
 
 
 function exitFullscreen() {
     if (document.fullscreenElement) {
-        document.exitFullscreen().catch(err =>
-            console.warn('Fullscreen konnte nicht verlassen werden:', err)
-        );
+        document.exitFullscreen().catch(() => { });
     }
 }
 
@@ -237,11 +208,9 @@ document.addEventListener('fullscreenchange', () => {
     const fullIcon = document.getElementById('fullScreen');
     const smallIcon = document.getElementById('smallScreen');
     const isFullscreen = !!document.fullscreenElement;
-
     fullIcon.style.display = isFullscreen ? 'none' : 'block';
     smallIcon.style.display = isFullscreen ? 'block' : 'none';
 });
-
 
 
 function setupOrientationCheck() {
@@ -249,18 +218,53 @@ function setupOrientationCheck() {
     window.addEventListener('resize', checkScreenOrientation);
     window.addEventListener('orientationchange', checkScreenOrientation);
 }
-
-
 setupOrientationCheck();
 
 
 function pressButton(key) {
     if (!keyboard) return;
-
     keyboard[key] = true;
-
-    // Taste automatisch wieder loslassen nach kurzer Zeit
     setTimeout(() => {
         keyboard[key] = false;
-    }, 150); // 150ms simuliert gedrückte Taste
+    }, 150);
+}
+
+
+function handleButtonPress(key) {
+    if (!keyboard) return;
+    keyboard[key] = true;
+}
+
+
+function handleButtonRelease(key) {
+    if (!keyboard) return;
+    keyboard[key] = false;
+}
+
+
+document.addEventListener('mouseup', () => resetKeyboard());
+document.addEventListener('touchend', () => resetKeyboard());
+
+
+function resetKeyboard() {
+    if (!keyboard) return;
+    keyboard.LEFT = false;
+    keyboard.RIGHT = false;
+    keyboard.SPACE = false;
+    keyboard.D = false;
+}
+
+
+function updateGameKeysVisibility() {
+    if (!window.isPlaying) {
+        hideGameKeys();
+        return;
+    }
+
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (!isMobile) {
+        showGameKeys();
+    } else {
+        hideGameKeys();
+    }
 }

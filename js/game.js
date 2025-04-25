@@ -314,6 +314,15 @@ async function fullyResetGame() {
 
 
 async function restartGame() {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const isLandscape = window.innerWidth > window.innerHeight;
+
+    if (isMobile && isLandscape && !document.fullscreenElement) {
+        const wrapper = document.getElementById('canvasWrapper');
+        wrapper?.requestFullscreen?.().catch(err =>
+            console.warn('Fullscreen konnte nicht aktiviert werden:', err)
+        );
+    }
     await fullyResetGame();
     startGame();
 }

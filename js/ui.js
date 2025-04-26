@@ -1,3 +1,7 @@
+/**
+ * Hides elements by their IDs.
+ * @param  {...string} ids - Element IDs.
+ */
 function hideButtons(...ids) {
     ids.forEach(id => {
         const el = document.getElementById(id);
@@ -6,6 +10,10 @@ function hideButtons(...ids) {
     });
 }
 
+/**
+ * Shows elements by their IDs with flex display.
+ * @param  {...string} ids - Element IDs.
+ */
 function showButtons(...ids) {
     ids.forEach(id => {
         const el = document.getElementById(id);
@@ -14,6 +22,9 @@ function showButtons(...ids) {
     });
 }
 
+/**
+ * Fades out and hides the start screen.
+ */
 function hideStartScreen() {
     const startFrame = document.getElementById('startFrame');
     if (startFrame) {
@@ -24,6 +35,9 @@ function hideStartScreen() {
     }
 }
 
+/**
+ * Shows the game over screen and stops the game.
+ */
 function showGameOverScreen() {
     this.displayGameOverUI();
     this.stopWorldAudio();
@@ -33,6 +47,9 @@ function showGameOverScreen() {
     showButtons('replayBtn', 'impressumContainer');
 }
 
+/**
+ * Displays game over UI elements.
+ */
 function displayGameOverUI() {
     const gameOverImage = document.getElementById('gameOverImage');
     const replayBtn = document.getElementById('replayBtn');
@@ -44,6 +61,9 @@ function displayGameOverUI() {
     }
 }
 
+/**
+ * Stops world animations and audio.
+ */
 function stopWorldAudio() {
     if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character) {
@@ -56,6 +76,10 @@ function stopWorldAudio() {
     }
 }
 
+/**
+ * Clears the canvas area.
+ * @param {string} [canvasId='canvas'] - Canvas element ID.
+ */
 function clearCanvas(canvasId = 'canvas') {
     const canvas = document.getElementById(canvasId);
     if (canvas) {
@@ -64,6 +88,9 @@ function clearCanvas(canvasId = 'canvas') {
     }
 }
 
+/**
+ * Hides the game over screen.
+ */
 function hideGameOverScreen() {
     const gameOverImage = document.getElementById('gameOverImage');
     if (gameOverImage) {
@@ -71,6 +98,9 @@ function hideGameOverScreen() {
     }
 }
 
+/**
+ * Hides the victory screen.
+ */
 function hideVictoryScreen() {
     const youWon = document.getElementById('youWon');
     if (youWon) {
@@ -78,16 +108,25 @@ function hideVictoryScreen() {
     }
 }
 
+/**
+ * Shows the mobile game keys.
+ */
 function showGameKeys() {
     const keys = document.getElementById('gameKeys');
     if (keys) keys.style.display = 'block';
 }
 
+/**
+ * Hides the mobile game keys.
+ */
 function hideGameKeys() {
     const keys = document.getElementById('gameKeys');
     if (keys) keys.style.display = 'none';
 }
 
+/**
+ * Shows the victory screen and ends the game.
+ */
 function showVictoryScreen() {
     this.displayVictoryUI();
     this.stopWorldAudio();
@@ -97,6 +136,9 @@ function showVictoryScreen() {
     showButtons('replayBtn', 'impressumContainer');
 }
 
+/**
+ * Displays victory UI elements.
+ */
 function displayVictoryUI() {
     const youWon = document.getElementById('youWon');
     const replayBtn = document.getElementById('replayBtn');
@@ -110,6 +152,9 @@ function displayVictoryUI() {
     }
 }
 
+/**
+ * Toggles fullscreen mode for the canvas wrapper.
+ */
 function setupFullscreenToggle() {
     const canvasWrapper = document.getElementById('canvasWrapper');
     const fullIcon = document.getElementById('fullScreen');
@@ -127,6 +172,9 @@ function setupFullscreenToggle() {
     }
 }
 
+/**
+ * Checks screen orientation and adapts the layout.
+ */
 function checkScreenOrientation() {
     const popup = document.getElementById('landscape-popup');
     const fullDiv = document.getElementById('full');
@@ -137,18 +185,34 @@ function checkScreenOrientation() {
     handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls });
 }
 
+/**
+ * Detects if the device is mobile.
+ * @returns {boolean}
+ */
 function detectMobile() {
     return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 }
 
+/**
+ * Checks if the screen is in portrait mode.
+ * @returns {boolean}
+ */
 function isPortraitMode() {
     return window.innerHeight > window.innerWidth;
 }
 
+/**
+ * Checks if screen width is smaller than 720px on desktop.
+ * @returns {boolean}
+ */
 function isSmallScreenDesktop() {
     return !detectMobile() && window.innerWidth < 720;
 }
 
+/**
+ * Handles orientation changes based on device type and screen size.
+ * @param {Object} params - Orientation and device status.
+ */
 function handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls }) {
     if ((isMobile && isPortrait) || isSmallDesktop) {
         handleShowRotatePopup(popup, fullDiv, mobileControls);
@@ -159,6 +223,9 @@ function handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, 
     }
 }
 
+/**
+ * Displays the "rotate device" popup.
+ */
 function handleShowRotatePopup(popup, fullDiv, mobileControls) {
     popup.style.display = 'flex';
     if (fullDiv) fullDiv.style.display = 'none';
@@ -168,6 +235,9 @@ function handleShowRotatePopup(popup, fullDiv, mobileControls) {
     exitFullscreen();
 }
 
+/**
+ * Handles layout when on mobile landscape.
+ */
 function handleMobileLandscape(popup, fullDiv, mobileControls) {
     popup.style.display = 'none';
     if (fullDiv) fullDiv.style.display = 'none';
@@ -179,6 +249,9 @@ function handleMobileLandscape(popup, fullDiv, mobileControls) {
     }
 }
 
+/**
+ * Handles layout for normal desktop view.
+ */
 function handleDesktopNormal(popup, fullDiv, mobileControls) {
     popup.style.display = 'none';
     if (fullDiv) fullDiv.style.display = 'flex';
@@ -189,6 +262,9 @@ function handleDesktopNormal(popup, fullDiv, mobileControls) {
     }
 }
 
+/**
+ * Requests fullscreen mode if not already active.
+ */
 function requestFullscreenIfNotActive() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!document.fullscreenElement && wrapper?.requestFullscreen) {
@@ -196,6 +272,9 @@ function requestFullscreenIfNotActive() {
     }
 }
 
+/**
+ * Exits fullscreen mode.
+ */
 function exitFullscreen() {
     if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => { });
@@ -210,6 +289,9 @@ document.addEventListener('fullscreenchange', () => {
     smallIcon.style.display = isFullscreen ? 'block' : 'none';
 });
 
+/**
+ * Sets up event listeners for orientation checking.
+ */
 function setupOrientationCheck() {
     window.addEventListener('load', checkScreenOrientation);
     window.addEventListener('resize', checkScreenOrientation);
@@ -217,6 +299,10 @@ function setupOrientationCheck() {
 }
 setupOrientationCheck();
 
+/**
+ * Simulates a short button press.
+ * @param {string} key - Keyboard key.
+ */
 function pressButton(key) {
     if (!keyboard) return;
     keyboard[key] = true;
@@ -225,11 +311,19 @@ function pressButton(key) {
     }, 150);
 }
 
+/**
+ * Handles button press event.
+ * @param {string} key - Keyboard key.
+ */
 function handleButtonPress(key) {
     if (!keyboard) return;
     keyboard[key] = true;
 }
 
+/**
+ * Handles button release event.
+ * @param {string} key - Keyboard key.
+ */
 function handleButtonRelease(key) {
     if (!keyboard) return;
     keyboard[key] = false;
@@ -238,6 +332,9 @@ function handleButtonRelease(key) {
 document.addEventListener('mouseup', () => resetKeyboard());
 document.addEventListener('touchend', () => resetKeyboard());
 
+/**
+ * Resets all keyboard input states.
+ */
 function resetKeyboard() {
     if (!keyboard) return;
     keyboard.LEFT = false;
@@ -246,6 +343,9 @@ function resetKeyboard() {
     keyboard.D = false;
 }
 
+/**
+ * Updates the visibility of mobile game keys based on play status.
+ */
 function updateGameKeysVisibility() {
     if (!window.isPlaying) {
         hideGameKeys();

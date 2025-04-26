@@ -12,7 +12,9 @@ class Cloud extends DrawableObject {
         this.moveCloud();
     }
 
-
+    /**
+    * Moves the cloud to the left and resets position when off-screen.
+    */
     moveCloud() {
         setInterval(() => {
             this.x -= this.speed;

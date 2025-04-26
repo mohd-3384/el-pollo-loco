@@ -34,6 +34,9 @@ class Chicken extends MovableObject {
         }, Math.random() * 1000);
     }
 
+    /**
+    * Animates the walking by switching walk images.
+    */
     animateWalk() {
         this.walkInterval = setInterval(() => {
             if (this.dead) {
@@ -49,6 +52,9 @@ class Chicken extends MovableObject {
         }, 150);
     }
 
+    /**
+    * Marks the enemy as dead and triggers removal process.
+    */
     die() {
         if (this.dead) return;
         this.dead = true;
@@ -56,6 +62,9 @@ class Chicken extends MovableObject {
         this.removeFromWorldLater();
     }
 
+    /**
+    * Stops walking animation and displays the dead image.
+    */
     stopAndShowDeadImage() {
         if (this.walkInterval) {
             clearInterval(this.walkInterval);
@@ -67,6 +76,9 @@ class Chicken extends MovableObject {
         }
     }
 
+    /**
+    * Removes the enemy from the world after a short delay.
+    */
     removeFromWorldLater() {
         setTimeout(() => {
             const idx = world.enemies.indexOf(this);
@@ -76,6 +88,10 @@ class Chicken extends MovableObject {
         }, 400);
     }
 
+    /**
+    * Draws the current image of the object on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+    */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);

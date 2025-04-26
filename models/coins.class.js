@@ -22,7 +22,9 @@ class Coin extends MovableObject {
         };
     }
 
-
+    /**
+    * Cycles through images to animate the object.
+    */
     animate() {
         let i = 0;
         setInterval(() => {
@@ -31,6 +33,10 @@ class Coin extends MovableObject {
         }, 300);
     }
 
+    /**
+    * Draws the object image on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas drawing context.
+    */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);

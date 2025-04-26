@@ -9,6 +9,10 @@ class DrawableObject {
         this.imageCache = {};
     }
 
+    /**
+    * Loads a single image and sets it as the current image.
+    * @param {string} path - The path to the image file.
+    */
     loadImage(path) {
         const img = new Image();
         img.src = path;
@@ -19,6 +23,10 @@ class DrawableObject {
         this.imageCache[path] = img;
     }
 
+    /**
+    * Preloads multiple images into the image cache.
+    * @param {string[]} imageArray - Array of image paths.
+    */
     loadImages(imageArray) {
         imageArray.forEach(path => {
             const img = new Image();
@@ -27,6 +35,10 @@ class DrawableObject {
         });
     }
 
+    /**
+    * Draws the current image on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas drawing context.
+    */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) {
             return;

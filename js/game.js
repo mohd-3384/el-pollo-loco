@@ -9,6 +9,11 @@ backgroundMusic.volume = 0.05;
 let isMuted = false;
 const backgroundImagePaths = [];
 
+/**
+ * Preloads a list of images and resolves when all are loaded.
+ * @param {string[]} imagePaths - Array of image file paths to preload.
+ * @returns {Promise<HTMLImageElement[]>} Promise resolving with loaded images.
+ */
 function preloadImages(imagePaths) {
     return Promise.all(
         imagePaths.map(path => {
@@ -32,6 +37,9 @@ for (let i = 0; i < 10; i++) {
     );
 }
 
+/**
+ * Toggles the game's mute state and updates all relevant sounds and UI.
+ */
 function toggleMute() {
     isMuted = !isMuted;
     const sounds = [
@@ -49,6 +57,11 @@ function toggleMute() {
     localStorage.setItem('isMuted', JSON.stringify(isMuted));
 }
 
+/** 
+ * Plays a sound with specified volume if not muted. 
+ * @param {HTMLAudioElement} sound - The sound to play.
+ * @param {number} [volume=0.5] - The volume level.
+ */
 function playSound(sound, volume = 0.5) {
     if (isMuted || !sound) return;
     sound.volume = volume;
@@ -56,12 +69,18 @@ function playSound(sound, volume = 0.5) {
     sound.play().catch(() => { });
 }
 
+/** 
+ * Updates the mute icon based on mute state.
+ */
 function updateMuteIcon() {
     const icon = document.getElementById('muteIcon');
     if (!icon) return;
     icon.src = isMuted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
 }
 
+/** 
+ * Starts background music if not muted.
+ */
 function startMusic() {
     if (isMuted) return;
     backgroundMusic.volume = 0.3;
@@ -71,6 +90,9 @@ function startMusic() {
     }
 }
 
+/** 
+ * Initializes game world and collision detection.
+ */
 function initGame() {
     canvas = document.getElementById('canvas');
     world = new World(canvas);
@@ -78,6 +100,9 @@ function initGame() {
     startCollisionDetection();
 }
 
+/** 
+ * Starts collision detection checks in intervals.
+ */
 function startCollisionDetection() {
     const lastHitBy = new WeakMap();
     setInterval(() => {
@@ -93,10 +118,21 @@ function startCollisionDetection() {
     }, 1000 / 30);
 }
 
+/** 
+ * Returns true if collision check should be skipped.
+ * @returns {boolean}
+ */
 function shouldSkipCollisionCheck() {
     return window.gameOver || !world?.character || !world?.enemies || !world?.endboss;
 }
 
+/** 
+ * Detects collisions between Pepe and enemies.
+ * @param {Array} allEnemies 
+ * @param {Character} pepe 
+ * @param {WeakMap} lastHitBy 
+ * @returns {boolean}
+ */
 function detectEnemyCollisions(allEnemies, pepe, lastHitBy) {
     let collisionDetected = false;
     allEnemies.forEach(enemy => {
@@ -109,6 +145,12 @@ function detectEnemyCollisions(allEnemies, pepe, lastHitBy) {
     return collisionDetected;
 }
 
+/** 
+ * Handles collision between Pepe and an enemy.
+ * @param {Character} pepe 
+ * @param {Object} enemy 
+ * @param {WeakMap} lastHitBy 
+ */
 function handleCollision(pepe, enemy, lastHitBy) {
     const isChicken = enemy.constructor.name === 'Chicken' || enemy.constructor.name === 'SmallChicken';
     const isEndboss = enemy.constructor.name === 'Endboss';
@@ -120,18 +162,33 @@ function handleCollision(pepe, enemy, lastHitBy) {
     }
 }
 
+/** 
+ * Stomps enemy when Pepe jumps on it.
+ * @param {Character} pepe 
+ * @param {Object} enemy 
+ */
 function stompEnemy(pepe, enemy) {
     playSound(boingSound);
     enemy.die?.();
     pepe.velocityY = -5;
 }
 
+/** 
+ * Instantly kills Pepe.
+ * @param {Character} pepe 
+ */
 function killPepe(pepe) {
     pepe.energy = 0;
     world.statusBarHealth.setPercentage(0);
     pepe.dead();
 }
 
+/** 
+ * Hurts Pepe when colliding with enemy.
+ * @param {Character} pepe 
+ * @param {WeakMap} lastHitBy 
+ * @param {Object} enemy 
+ */
 function hurtPepe(pepe, lastHitBy, enemy) {
     pepe.isHurt = true;
     pepe.playHurtLoop?.();
@@ -141,17 +198,30 @@ function hurtPepe(pepe, lastHitBy, enemy) {
     if (pepe.energy === 0) pepe.dead();
 }
 
+/** 
+ * Resets Pepe's hurt state.
+ * @param {Array} allEnemies 
+ * @param {Character} pepe 
+ * @param {WeakMap} lastHitBy 
+ */
 function resetHurtState(allEnemies, pepe, lastHitBy) {
     pepe.isHurt = false;
     allEnemies.forEach(e => lastHitBy.delete(e));
 }
 
+/** 
+ * Activates endboss when Pepe is near.
+ * @param {Character} pepe 
+ */
 function activateEndbossIfNear(pepe) {
     if (!world.endboss.activated && world.endboss.x - pepe.x < 700) {
         world.endboss.activate();
     }
 }
 
+/** 
+ * Checks for collision between bottles and endboss.
+ */
 function checkThrowablesCollision() {
     world.throwables = world.throwables.filter(bottle => {
         if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
@@ -163,6 +233,10 @@ function checkThrowablesCollision() {
     });
 }
 
+/** 
+ * Collects coins when Pepe collides with them.
+ * @param {Character} pepe 
+ */
 function collectCoins(pepe) {
     world.coins = world.coins.filter(coin => {
         if (isColliding(pepe, coin)) {
@@ -175,6 +249,10 @@ function collectCoins(pepe) {
     });
 }
 
+/** 
+ * Collects bottles when Pepe collides with them.
+ * @param {Character} pepe 
+ */
 function collectBottles(pepe) {
     world.bottles = world.bottles.filter(bottle => {
         if (isColliding(pepe, bottle)) {
@@ -187,12 +265,23 @@ function collectBottles(pepe) {
     });
 }
 
+/** 
+ * Checks if two objects are colliding.
+ * @param {Object} a 
+ * @param {Object} b 
+ * @returns {boolean}
+ */
 function isColliding(a, b) {
     const boxA = getHitbox(a);
     const boxB = getHitbox(b);
     return checkBoxCollision(boxA, boxB);
 }
 
+/** 
+ * Returns the hitbox of an object.
+ * @param {Object} object 
+ * @returns {Object}
+ */
 function getHitbox(object) {
     return {
         x: object.x + (object.hitbox?.offsetX || 0),
@@ -202,6 +291,12 @@ function getHitbox(object) {
     };
 }
 
+/** 
+ * Checks collision between two hitboxes.
+ * @param {Object} boxA 
+ * @param {Object} boxB 
+ * @returns {boolean}
+ */
 function checkBoxCollision(boxA, boxB) {
     return boxA.x < boxB.x + boxB.width &&
         boxA.x + boxA.width > boxB.x &&
@@ -209,6 +304,9 @@ function checkBoxCollision(boxA, boxB) {
         boxA.y + boxA.height > boxB.y;
 }
 
+/** 
+ * Starts the game and sets up world.
+ */
 async function startGame() {
     window.isPlaying = true;
     prepareGameStart();
@@ -220,6 +318,9 @@ async function startGame() {
     hideGameOverScreen();
 }
 
+/** 
+ * Prepares UI and game state for start.
+ */
 function prepareGameStart() {
     hideButtons('startBtn', 'replayBtn', 'impressumContainer');
     hideStartScreen();
@@ -232,12 +333,18 @@ function prepareGameStart() {
     window.gameOver = false;
 }
 
+/** 
+ * Loads images and initializes the world.
+ */
 async function setupGameWorld() {
     initKeyboardControls();
     await preloadImages(backgroundImagePaths);
     initGame();
 }
 
+/** 
+ * Requests fullscreen if on mobile and landscape.
+ */
 function handleFullscreenOnMobile() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
@@ -247,6 +354,9 @@ function handleFullscreenOnMobile() {
     }
 }
 
+/** 
+ * Shows or hides mobile controls based on device orientation.
+ */
 function toggleMobileControls() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
@@ -256,6 +366,9 @@ function toggleMobileControls() {
     }
 }
 
+/** 
+ * Configures volume for all game sounds.
+ */
 function configureSoundVolumes() {
     const sounds = [
         world?.character?.startSound,
@@ -269,6 +382,11 @@ function configureSoundVolumes() {
     });
 }
 
+/** 
+ * Draws a transparent hitbox for an object.
+ * @param {Object} obj 
+ * @param {CanvasRenderingContext2D} ctx 
+ */
 function drawHitbox(obj, ctx) {
     if (!obj.hitbox) return;
     ctx.save();
@@ -283,6 +401,9 @@ function drawHitbox(obj, ctx) {
     ctx.restore();
 }
 
+/** 
+ * Ends the game and returns to home screen.
+ */
 function goHome() {
     window.gameOver = true;
     window.isPlaying = false;
@@ -291,6 +412,9 @@ function goHome() {
     resetUIToStartScreen();
 }
 
+/** 
+ * Stops animations and sounds.
+ */
 function stopWorldAndAudio() {
     if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character) {
@@ -301,6 +425,9 @@ function stopWorldAndAudio() {
     backgroundMusic.currentTime = 0;
 }
 
+/** 
+ * Resets world and UI after game ends.
+ */
 function resetWorldState() {
     world = null;
     const mobileControls = document.getElementById('mobile-controls');
@@ -313,6 +440,9 @@ function resetWorldState() {
     clearCanvas();
 }
 
+/** 
+ * Displays the start screen UI.
+ */
 function resetUIToStartScreen() {
     const startFrame = document.getElementById('startFrame');
     if (startFrame) {
@@ -323,16 +453,25 @@ function resetUIToStartScreen() {
     showButtons('startBtn', 'impressumContainer');
 }
 
+/** 
+ * Shows the home button.
+ */
 function showHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'flex';
 }
 
+/** 
+ * Hides the home button.
+ */
 function hideHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'none';
 }
 
+/** 
+ * Fully resets the game for a clean restart.
+ */
 async function fullyResetGame() {
     stopWorldAndCharacter();
     resetGameState();
@@ -341,6 +480,9 @@ async function fullyResetGame() {
     await waitShortDelay();
 }
 
+/** 
+ * Stops world and character intervals.
+ */
 function stopWorldAndCharacter() {
     if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character?.keyboardInterval) {
@@ -350,6 +492,9 @@ function stopWorldAndCharacter() {
     }
 }
 
+/** 
+ * Clears world, canvas, and keyboard state.
+ */
 function resetGameState() {
     window.gameOver = true;
     world = null;
@@ -358,6 +503,9 @@ function resetGameState() {
     keyboard = {};
 }
 
+/** 
+ * Hides game over UI and clears canvas.
+ */
 function clearUIAndCanvas() {
     clearCanvas();
     hideButtons('replayBtn', 'impressumContainer');
@@ -366,15 +514,25 @@ function clearUIAndCanvas() {
     hideHomeButton();
 }
 
+/** 
+ * Resets background music.
+ */
 function resetAudio() {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
 }
 
+/** 
+ * Waits briefly (50ms).
+ * @returns {Promise<void>}
+ */
 function waitShortDelay() {
     return new Promise(resolve => setTimeout(resolve, 50));
 }
 
+/** 
+ * Restarts the game after resetting.
+ */
 async function restartGame() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
@@ -390,6 +548,9 @@ document.addEventListener('DOMContentLoaded', () => {
     restoreMuteState();
 });
 
+/** 
+ * Restores mute state from localStorage.
+ */
 function restoreMuteState() {
     const storedMute = localStorage.getItem('isMuted');
     if (storedMute !== null) {
@@ -399,6 +560,9 @@ function restoreMuteState() {
     }
 }
 
+/** 
+ * Applies mute settings to all sounds.
+ */
 function applyMuteToSounds() {
     const sounds = [
         world?.character?.startSound,

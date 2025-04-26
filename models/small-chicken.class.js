@@ -6,7 +6,6 @@ class SmallChicken extends MovableObject {
     ];
     currentWalkFrame = 0;
 
-
     constructor(x = 800) {
         super();
         this.loadImage(this.walkImages[0]);
@@ -35,6 +34,9 @@ class SmallChicken extends MovableObject {
         }, Math.random() * 1000);
     }
 
+    /**
+    * Animates the walking cycle by switching images.
+    */
     animateWalk() {
         this.walkInterval = setInterval(() => {
             if (this.dead) {
@@ -50,6 +52,9 @@ class SmallChicken extends MovableObject {
         }, 150);
     }
 
+    /**
+    * Marks the object as dead and starts removal process.
+    */
     die() {
         if (this.dead) return;
         this.dead = true;
@@ -57,6 +62,9 @@ class SmallChicken extends MovableObject {
         this.removeFromWorldAfterDelay();
     }
 
+    /**
+    * Stops walking and shows the dead image.
+    */
     stopAndShowDeadImage() {
         if (this.walkInterval) {
             clearInterval(this.walkInterval);
@@ -68,6 +76,9 @@ class SmallChicken extends MovableObject {
         }
     }
 
+    /**
+    * Removes the object from the world after a short delay.
+    */
     removeFromWorldAfterDelay() {
         setTimeout(() => {
             const idx = world.enemies.indexOf(this);
@@ -77,6 +88,10 @@ class SmallChicken extends MovableObject {
         }, 400);
     }
 
+    /**
+    * Draws the object on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas context.
+     */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);

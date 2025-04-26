@@ -6,7 +6,10 @@ class MovableObject extends DrawableObject {
     width = 100;
     energy = 100;
 
-
+    /**
+    * Loads a single image and stores it in the cache.
+    * @param {string} path - Image path to load.
+    */
     loadImage(path) {
         const img = new Image();
         img.src = path;
@@ -17,6 +20,10 @@ class MovableObject extends DrawableObject {
         this.imageCache[path] = img;
     }
 
+    /**
+    * Loads multiple images and stores them in the cache.
+    * @param {string[]} imageArray - Array of image paths.
+    */
     loadImages(imageArray) {
         this.imageCache = this.imageCache || {};
         imageArray.forEach(path => {
@@ -26,6 +33,11 @@ class MovableObject extends DrawableObject {
         });
     }
 
+    /**
+    * Continuously moves the object to the left and respawns it.
+    * @param {number} [spawnX=800] - X position to respawn.
+    * @param {Function} [yRandomizer=null] - Optional function to randomize Y position.
+    */
     moveLeftLoop(spawnX = 800, yRandomizer = null) {
         setInterval(() => {
             this.x -= this.speed;
@@ -38,11 +50,18 @@ class MovableObject extends DrawableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Draws the object on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+    */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
+    /**
+    * Kills the object and removes it after a short delay.
+    */
     die() {
         if (this.dead) return;
         this.dead = true;

@@ -112,6 +112,9 @@ class Character extends MovableObject {
         this.keyboardIntervalStarted = false;
     }
 
+    /**
+    * Runs the character's animation based on its current state every 100ms.
+    */
     animate() {
         setInterval(() => {
             if (this.currentAnimation === 'dead' || this.isDead) return;
@@ -123,6 +126,9 @@ class Character extends MovableObject {
         }, 100);
     }
 
+    /**
+    * Displays the next frame of the hurt animation.
+    */
     playHurtAnimation() {
         const path = this.hurtImages[this.currentIdleFrame % this.hurtImages.length];
         const img = this.imageCache[path];
@@ -132,6 +138,9 @@ class Character extends MovableObject {
         this.currentIdleFrame++;
     }
 
+    /**
+    * Plays the current main animation based on the character's state.
+    */
     playMainAnimation() {
         switch (this.currentAnimation) {
             case 'walk':
@@ -145,6 +154,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Displays the next frame of the walk animation.
+    */
     playWalkAnimation() {
         const path = this.walkImages[this.currentWalkFrame];
         const img = this.imageCache[path];
@@ -154,6 +166,9 @@ class Character extends MovableObject {
         this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
     }
 
+    /**
+    * Displays the next frame of the jump animation.
+    */
     playJumpAnimation() {
         const path = this.jumpImages[this.currentJumpFrame];
         const img = this.imageCache[path];
@@ -163,6 +178,9 @@ class Character extends MovableObject {
         this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
     }
 
+    /**
+    * Displays the next frame of the idle animation.
+    */
     playIdleAnimation() {
         const path = this.idleImages[this.currentIdleFrame];
         const img = this.imageCache[path];
@@ -172,6 +190,9 @@ class Character extends MovableObject {
         this.currentIdleFrame = (this.currentIdleFrame + 1) % this.idleImages.length;
     }
 
+    /**
+    * Starts checking keyboard input and updates the character's movement and gravity.
+    */
     checkKeyboard() {
         if (this.keyboardIntervalStarted) return;
         this.keyboardIntervalStarted = true;
@@ -187,6 +208,9 @@ class Character extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Updates the character's position and animation based on left/right input.
+    */
     handleMovement() {
         if (keyboard.RIGHT && this.x < 3000) {
             this.x += this.speed;
@@ -206,6 +230,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Handles jumping and throwing bottles based on input.
+    */
     handleJumpAndThrow() {
         if (keyboard.SPACE) {
             this.jump();
@@ -219,6 +246,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Makes the character jump if allowed.
+    */
     jump() {
         if (this.jumpCount < this.maxJumps) {
             this.velocityY = -11;
@@ -229,6 +259,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Applies gravity to the character's vertical movement.
+    */
     applyGravity() {
         if (this.velocityY < 0) {
             this.gravity = 0.4;
@@ -244,10 +277,16 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Checks if the character is currently jumping or falling.
+    */
     isJumping() {
         return this.y < this.groundY || this.velocityY < 0;
     }
 
+    /**
+    * Draws the character on the canvas.
+    */
     draw(ctx) {
         if (!this.visible || !this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         if (this.facingLeft) {
@@ -260,6 +299,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Handles the initial fall of the character at game start.
+    */
     fall() {
         this.velocityY = 2;
         this.gravity = 0.4;
@@ -278,12 +320,18 @@ class Character extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Plays the start sound if not muted.
+    */
     playStartSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.startSound.volume = 0.5;
         this.startSound.play().catch(() => { });
     }
 
+    /**
+    * Plays the walking sound if not muted and not already playing.
+    */
     playWalkSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         if (this.walkSound.paused) {
@@ -293,18 +341,27 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Stops the walking sound immediately.
+    */
     stopWalkSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.walkSound.pause();
         this.walkSound.currentTime = 0;
     }
 
+    /**
+    * Plays the jump sound if not muted.
+    */
     playJumpSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.jumpSound.volume = 0.4;
         this.jumpSound.play();
     }
 
+    /**
+    * Starts the hurt animation loop.
+    */
     playHurtLoop() {
         if (this.hurtInterval) return;
         this.isHurt = true;
@@ -313,6 +370,9 @@ class Character extends MovableObject {
         this.endHurtAnimation();
     }
 
+    /**
+    * Begins switching hurt frames repeatedly.
+    */
     startHurtAnimation(i) {
         this.hurtInterval = setInterval(() => {
             if (!this.isHurt) {
@@ -324,6 +384,9 @@ class Character extends MovableObject {
         }, 300);
     }
 
+    /**
+    * Shows the next hurt frame.
+    */
     showNextHurtFrame(i) {
         const img = this.imageCache[this.hurtImages[i]];
         if (img instanceof HTMLImageElement && img.complete) {
@@ -331,6 +394,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Ends the hurt animation after a delay.
+    */
     endHurtAnimation() {
         setTimeout(() => {
             this.isHurt = false;
@@ -338,6 +404,9 @@ class Character extends MovableObject {
         }, 1500);
     }
 
+    /**
+    * Resets character back to idle state.
+    */
     resetToIdle() {
         const idleImg = this.imageCache[this.idleImages[0]];
         if (idleImg instanceof HTMLImageElement && idleImg.complete) {
@@ -347,11 +416,17 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Clears the hurt animation interval.
+    */
     clearHurtInterval() {
         clearInterval(this.hurtInterval);
         this.hurtInterval = null;
     }
 
+    /**
+    * Triggers the death animation and sound.
+    */
     dead() {
         if (this.deadInterval || this.isDead) return;
         this.isDead = true;
@@ -362,6 +437,9 @@ class Character extends MovableObject {
         this.startDeadAnimation();
     }
 
+    /**
+    * Loads images for the death animation.
+    */
     setupDeadImages() {
         this.deadImages = [
             '../img/2_character_pepe/5_dead/D-51.png',
@@ -375,6 +453,9 @@ class Character extends MovableObject {
         this.loadImages(this.deadImages);
     }
 
+    /**
+    * Plays the death sound if not muted.
+    */
     playDeadSound() {
         if (typeof isMuted === 'undefined' || !isMuted) {
             this.deadSound.volume = 0.5;
@@ -382,12 +463,18 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Starts switching death frames.
+    */
     startDeadAnimation() {
         this.deadInterval = setInterval(() => {
             this.updateDeadFrame();
         }, 200);
     }
 
+    /**
+    * Updates the current death frame.
+    */
     updateDeadFrame() {
         const path = this.deadImages[this.currentDeadFrame];
         const img = this.imageCache[path];
@@ -402,6 +489,9 @@ class Character extends MovableObject {
         }
     }
 
+    /**
+    * Makes the character fall off-screen after death.
+    */
     startDeathFall() {
         if (this.fallInterval) return;
         this.gravity = 1.2;
@@ -418,6 +508,9 @@ class Character extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Throws a bottle if available.
+    */
     throwBottle() {
         if (this.bottles > 0 && this.canThrow) {
             this.canThrow = false;

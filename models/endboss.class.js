@@ -28,7 +28,6 @@ class Endboss extends MovableObject {
     isDead = false;
     activated = false;
 
-
     constructor(x = 2800) {
         super();
         this.loadImage(this.alertImages[0]);
@@ -51,6 +50,9 @@ class Endboss extends MovableObject {
         };
     }
 
+    /**
+    * Starts idle animation cycling through alert images.
+    */
     animateIdle() {
         this.idleInterval = setInterval(() => {
             if (this.isDead) return;
@@ -63,6 +65,9 @@ class Endboss extends MovableObject {
         }, 200);
     }
 
+    /**
+    * Activates the endboss after a delay.
+    */
     activate() {
         if (this.activated || this.isDead || window.gameOver) return;
         this.activated = true;
@@ -74,6 +79,9 @@ class Endboss extends MovableObject {
         }, 3000);
     }
 
+    /**
+    * Starts walking towards the character.
+    */
     startWalking() {
         this.walkInterval = setInterval(() => {
             if (this.isDead || window.gameOver || !world?.character) return;
@@ -86,6 +94,9 @@ class Endboss extends MovableObject {
         }, 100);
     }
 
+    /**
+    * Handles the endboss being hit by a bottle.
+    */
     hitByBottle() {
         if (this.isDead) return;
         this.hits++;
@@ -94,6 +105,9 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+    * Starts the death animation sequence.
+    */
     die() {
         this.isDead = true;
         clearInterval(this.walkInterval);
@@ -101,6 +115,9 @@ class Endboss extends MovableObject {
         this.deathInterval = setInterval(() => this.playDeathAnimation(), 250);
     }
 
+    /**
+    * Plays the death animation frames.
+    */
     playDeathAnimation() {
         const path = this.deadImages[this.currentFrame];
         const img = this.imageCache[path];
@@ -111,6 +128,9 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+    * Makes the endboss fall down after death.
+    */
     fallDown() {
         window.gameOver = true;
         const fall = setInterval(() => {
@@ -122,6 +142,10 @@ class Endboss extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Draws the endboss image on the canvas.
+    * @param {CanvasRenderingContext2D} ctx - The canvas drawing context.
+    */
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) {
             return;

@@ -21,6 +21,9 @@ class ThrowableObject extends MovableObject {
         this.throw();
     }
 
+    /**
+    * Starts the bottle throw with movement, gravity, and rotation.
+    */
     throw() {
         this.applyGravity();
         this.animateRotation();
@@ -29,6 +32,9 @@ class ThrowableObject extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Animates the bottle's rotation during flight.
+    */
     animateRotation() {
         let i = 0;
         this.rotationInterval = setInterval(() => {
@@ -37,6 +43,9 @@ class ThrowableObject extends MovableObject {
         }, 100);
     }
 
+    /**
+    * Applies gravity to the bottle until it falls out of view.
+    */
     applyGravity() {
         this.gravityInterval = setInterval(() => {
             this.y -= this.speedY;
@@ -47,6 +56,9 @@ class ThrowableObject extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+    * Removes the bottle from the world and stops all intervals.
+    */
     remove() {
         clearInterval(this.gravityInterval);
         clearInterval(this.moveInterval);

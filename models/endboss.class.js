@@ -23,6 +23,8 @@ class Endboss extends MovableObject {
         '../img/4_enemie_boss_chicken/5_dead/G26.png'
     ];
 
+    cluckSound = new Audio('./audio/chicken-clucking.mp3');
+
     currentFrame = 0;
     hits = 0;
     isDead = false;
@@ -106,10 +108,15 @@ class Endboss extends MovableObject {
     }
 
     /**
-    * Starts the death animation sequence.
+    * Starts the death animation sequence and plays the clucking sound.
     */
     die() {
+        if (this.isDead) return;
         this.isDead = true;
+        if (this.cluckSound) {
+            this.cluckSound.volume = 0.5;
+            this.cluckSound.play().catch(() => { });
+        }
         clearInterval(this.walkInterval);
         this.currentFrame = 0;
         this.deathInterval = setInterval(() => this.playDeathAnimation(), 250);

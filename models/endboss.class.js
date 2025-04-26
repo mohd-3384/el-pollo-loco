@@ -108,14 +108,16 @@ class Endboss extends MovableObject {
     }
 
     /**
-    * Starts the death animation sequence and plays the clucking sound.
+    * Starts the death animation sequence and plays the clucking sound if not muted.
     */
     die() {
         if (this.isDead) return;
         this.isDead = true;
-        if (this.cluckSound) {
-            this.cluckSound.volume = 0.5;
-            this.cluckSound.play().catch(() => { });
+        if (typeof isMuted === 'undefined' || !isMuted) {
+            if (this.cluckSound) {
+                this.cluckSound.volume = 0.5;
+                this.cluckSound.play().catch(() => { });
+            }
         }
         clearInterval(this.walkInterval);
         this.currentFrame = 0;

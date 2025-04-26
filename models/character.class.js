@@ -50,6 +50,23 @@ class Character extends MovableObject {
         '../img/2_character_pepe/3_jump/J-39.png'
     ];
 
+    sleepImages = [
+        '../img/2_character_pepe/1_idle/long_idle/I-11.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-12.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-13.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-14.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-15.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-16.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-17.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-18.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-19.png',
+        '../img/2_character_pepe/1_idle/long_idle/I-20.png'
+    ];
+
+    snoreSound = new Audio('../audio/snore.mp3');
+    inactivityTimer = null;
+    isSleeping = false;
+
     walkSound = new Audio('../audio/walking.mp3');
     jumpSound = new Audio('../audio/jump.mp3');
     deadSound = new Audio('../audio/pepescream.mp3');
@@ -81,6 +98,7 @@ class Character extends MovableObject {
         this.loadImages(this.idleImages);
         this.loadImages(this.walkImages);
         this.loadImages(this.jumpImages);
+        this.loadImages(this.sleepImages);
 
         this.x = 200;
         this.y = -50;
@@ -91,8 +109,8 @@ class Character extends MovableObject {
 
         this.animate();
         this.checkKeyboard();
+        this.setupInactivityTimer();
         this.visible = true;
-
         this.fall();
 
         this.hitbox = {
@@ -118,6 +136,7 @@ class Character extends MovableObject {
     animate() {
         setInterval(() => {
             if (this.currentAnimation === 'dead' || this.isDead) return;
+            if (this.isSleeping) return;
             if (this.isHurt) {
                 this.playHurtAnimation();
                 return;
@@ -172,9 +191,7 @@ class Character extends MovableObject {
     playJumpAnimation() {
         const path = this.jumpImages[this.currentJumpFrame];
         const img = this.imageCache[path];
-        if (img instanceof HTMLImageElement && img.complete) {
-            this.img = img;
-        }
+        if (img instanceof HTMLImageElement && img.complete) this.img = img;
         this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
     }
 
@@ -184,9 +201,7 @@ class Character extends MovableObject {
     playIdleAnimation() {
         const path = this.idleImages[this.currentIdleFrame];
         const img = this.imageCache[path];
-        if (img instanceof HTMLImageElement && img.complete) {
-            this.img = img;
-        }
+        if (img instanceof HTMLImageElement && img.complete) this.img = img;
         this.currentIdleFrame = (this.currentIdleFrame + 1) % this.idleImages.length;
     }
 
@@ -209,41 +224,57 @@ class Character extends MovableObject {
     }
 
     /**
-    * Updates the character's position and animation based on left/right input.
+    * Handles character movement based on keyboard input and state.
     */
     handleMovement() {
+        if (this.isSleeping) return;
         if (keyboard.RIGHT && this.x < 3000) {
-            this.x += this.speed;
-            this.facingLeft = false;
-            this.currentAnimation = 'walk';
-            this.playWalkSound();
+            this.moveRight();
         } else if (keyboard.LEFT && this.x > this.minX) {
-            this.x -= this.speed;
-            this.facingLeft = true;
-            this.currentAnimation = 'walk';
-            this.playWalkSound();
+            this.moveLeft();
         } else if (this.isJumping()) {
             this.currentAnimation = 'jump';
         } else {
-            this.currentAnimation = 'idle';
-            this.stopWalkSound();
+            this.idle();
         }
+    }
+
+    /**
+    * Moves the character to the right and plays walk sound.
+    */
+    moveRight() {
+        this.x += this.speed;
+        this.facingLeft = false;
+        this.currentAnimation = 'walk';
+        this.playWalkSound();
+    }
+
+    /**
+    * Moves the character to the left and plays walk sound.
+    */
+    moveLeft() {
+        this.x -= this.speed;
+        this.facingLeft = true;
+        this.currentAnimation = 'walk';
+        this.playWalkSound();
+    }
+
+    /**
+    * Sets the character to idle state and stops walk sound.
+    */
+    idle() {
+        this.currentAnimation = 'idle';
+        this.stopWalkSound();
     }
 
     /**
     * Handles jumping and throwing bottles based on input.
     */
     handleJumpAndThrow() {
-        if (keyboard.SPACE) {
-            this.jump();
-        }
-        if (keyboard.D && !this.previousD && this.canThrow) {
-            this.throwBottle();
-        }
+        if (keyboard.SPACE) this.jump();
+        if (keyboard.D && !this.previousD && this.canThrow) this.throwBottle();
         this.previousD = keyboard.D;
-        if (this.isJumping()) {
-            this.currentAnimation = 'jump';
-        }
+        if (this.isJumping()) this.currentAnimation = 'jump';
     }
 
     /**
@@ -263,11 +294,8 @@ class Character extends MovableObject {
     * Applies gravity to the character's vertical movement.
     */
     applyGravity() {
-        if (this.velocityY < 0) {
-            this.gravity = 0.4;
-        } else {
-            this.gravity = 0.8;
-        }
+        if (this.velocityY < 0) this.gravity = 0.4;
+        else this.gravity = 0.8;
         this.y += this.velocityY;
         this.velocityY += this.gravity;
         if (!this.falling && this.y >= this.groundY) {
@@ -478,9 +506,7 @@ class Character extends MovableObject {
     updateDeadFrame() {
         const path = this.deadImages[this.currentDeadFrame];
         const img = this.imageCache[path];
-        if (img instanceof HTMLImageElement && img.complete) {
-            this.img = img;
-        }
+        if (img instanceof HTMLImageElement && img.complete) this.img = img;
         this.currentDeadFrame++;
         if (this.currentDeadFrame >= this.deadImages.length) {
             clearInterval(this.deadInterval);
@@ -523,5 +549,102 @@ class Character extends MovableObject {
                 this.canThrow = true;
             }, 500);
         }
+    }
+
+    /**
+    * Sets the inactivity timer to start the sleep animation.
+    */
+    setupInactivityTimer() {
+        const resetTimer = () => {
+            if (this.isSleeping) this.stopSleepAnimation();
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = setTimeout(() => {
+                this.startSleepAnimation();
+            }, 6000);
+        };
+        window.addEventListener('keydown', resetTimer);
+        window.addEventListener('mousedown', resetTimer);
+        window.addEventListener('touchstart', resetTimer);
+        resetTimer();
+    }
+
+    /**
+    * Start the Sleep-Animation.
+    */
+    startSleepAnimation() {
+        if (this.isSleeping || this.isDead || window.gameOver) return;
+        this.isSleeping = true;
+        this.currentAnimation = 'sleep';
+        this.currentIdleFrame = 0;
+        this.snoreSound.loop = true;
+        this.snoreSound.volume = 0.5;
+        if (!isMuted) this.snoreSound.play();
+        this.sleepInterval = setInterval(() => {
+            const path = this.sleepImages[this.currentIdleFrame % this.sleepImages.length];
+            const img = this.imageCache[path];
+            if (img instanceof HTMLImageElement && img.complete) this.img = img;
+            this.currentIdleFrame++;
+        }, 200);
+    }
+
+    /**
+    * Stops the sleep animation and sets Pepe back to idle state.
+    */
+    stopSleepAnimation() {
+        if (!this.isSleeping) return;
+        this.isSleeping = false;
+        this.currentAnimation = 'idle';
+        this.currentIdleFrame = 0;
+        clearInterval(this.sleepInterval);
+        this.snoreSound.pause();
+        this.snoreSound.currentTime = 0;
+        const idleImg = this.imageCache[this.idleImages[0]];
+        if (idleImg instanceof HTMLImageElement && idleImg.complete) {
+            this.img = idleImg;
+        }
+    }
+
+    /**
+    * Checks for collisions with Chicken or SmallChicken.
+    */
+    checkCollisionsWithEnemies(enemies) {
+        enemies.forEach(enemy => {
+            if (isColliding(this, enemy)) {
+                this.stopSleepAnimation();
+            }
+        });
+    }
+
+    /**
+   * Overrides the `check Keyboard` method to stop the sleep animation when Pepe moves.
+   */
+    checkKeyboard() {
+        if (this.keyboardIntervalStarted) return;
+        this.keyboardIntervalStarted = true;
+        this.keyboardInterval = setInterval(() => {
+            if (this.isDead || window.gameOver) return;
+            if (this.falling) {
+                this.applyGravity();
+                return;
+            }
+            if (keyboard.RIGHT || keyboard.LEFT || keyboard.SPACE || keyboard.D) this.stopSleepAnimation();
+            this.handleMovement();
+            this.handleJumpAndThrow();
+            this.applyGravity();
+        }, 1000 / 60);
+    }
+
+    /**
+    * Overrides the `dead` method to stop the sleep animation when the game ends.
+    */
+    dead() {
+        if (this.deadInterval || this.isDead) return;
+        this.isDead = true;
+        this.currentAnimation = 'dead';
+        this.currentDeadFrame = 0;
+        this.setupDeadImages();
+        this.playDeadSound();
+        this.startDeadAnimation();
+        this.stopSleepAnimation();
     }
 }

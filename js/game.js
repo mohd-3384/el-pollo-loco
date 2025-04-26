@@ -97,6 +97,11 @@ function initGame() {
     canvas = document.getElementById('canvas');
     world = new World(canvas);
     ctx = canvas.getContext('2d');
+    setInterval(() => {
+        if (world?.character && world?.enemies) {
+            world.character.checkCollisionsWithEnemies(world.enemies);
+        }
+    }, 1000 / 60);
     startCollisionDetection();
 }
 

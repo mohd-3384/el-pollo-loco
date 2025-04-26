@@ -34,40 +34,40 @@ class Chicken extends MovableObject {
         }, Math.random() * 1000);
     }
 
-
     animateWalk() {
         this.walkInterval = setInterval(() => {
             if (this.dead) {
                 clearInterval(this.walkInterval);
                 return;
             }
-
             const path = this.walkImages[this.currentWalkFrame];
             const img = this.imageCache[path];
-
             if (img instanceof HTMLImageElement && img.complete) {
                 this.img = img;
             }
-
             this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
         }, 150);
     }
 
-
     die() {
         if (this.dead) return;
         this.dead = true;
+        this.stopAndShowDeadImage();
+        this.removeFromWorldLater();
+    }
 
+    stopAndShowDeadImage() {
         if (this.walkInterval) {
             clearInterval(this.walkInterval);
             this.walkInterval = null;
         }
-
         const img = this.imageCache[this.deadImagePath];
         if (img instanceof HTMLImageElement && img.complete) {
             this.img = img;
         }
+    }
 
+    removeFromWorldLater() {
         setTimeout(() => {
             const idx = world.enemies.indexOf(this);
             if (idx > -1) {
@@ -76,10 +76,8 @@ class Chicken extends MovableObject {
         }, 400);
     }
 
-
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
-
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 }

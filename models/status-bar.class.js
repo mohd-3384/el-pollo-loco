@@ -20,37 +20,20 @@ class StatusBar extends DrawableObject {
         const base = './img/7_statusbars/1_statusbar';
         switch (type) {
             case 'health':
-                return [
-                    `${base}/2_statusbar_health/blue/0.png`,
-                    `${base}/2_statusbar_health/blue/20.png`,
-                    `${base}/2_statusbar_health/blue/40.png`,
-                    `${base}/2_statusbar_health/blue/60.png`,
-                    `${base}/2_statusbar_health/blue/80.png`,
-                    `${base}/2_statusbar_health/blue/100.png`
-                ];
+                return this.getStatusbarPaths(base, '2_statusbar_health/blue');
             case 'coin':
-                return [
-                    `${base}/1_statusbar_coin/green/0.png`,
-                    `${base}/1_statusbar_coin/green/20.png`,
-                    `${base}/1_statusbar_coin/green/40.png`,
-                    `${base}/1_statusbar_coin/green/60.png`,
-                    `${base}/1_statusbar_coin/green/80.png`,
-                    `${base}/1_statusbar_coin/green/100.png`
-                ];
+                return this.getStatusbarPaths(base, '1_statusbar_coin/green');
             case 'bottle':
-                return [
-                    `${base}/3_statusbar_bottle/orange/0.png`,
-                    `${base}/3_statusbar_bottle/orange/20.png`,
-                    `${base}/3_statusbar_bottle/orange/40.png`,
-                    `${base}/3_statusbar_bottle/orange/60.png`,
-                    `${base}/3_statusbar_bottle/orange/80.png`,
-                    `${base}/3_statusbar_bottle/orange/100.png`
-                ];
+                return this.getStatusbarPaths(base, '3_statusbar_bottle/orange');
             default:
                 return [];
         }
     }
 
+    getStatusbarPaths(base, subfolder) {
+        const levels = ['0', '20', '40', '60', '80', '100'];
+        return levels.map(level => `${base}/${subfolder}/${level}.png`);
+    }
 
     setPercentage(percentage) {
         this.percentage = percentage;
@@ -58,7 +41,6 @@ class StatusBar extends DrawableObject {
         const path = this.images[index];
         this.img = this.imageCache[path];
     }
-
 
     resolveImageIndex() {
         if (this.percentage >= 100) return 5;

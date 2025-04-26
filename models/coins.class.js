@@ -31,7 +31,6 @@ class Coin extends MovableObject {
         }, 300);
     }
 
-
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);

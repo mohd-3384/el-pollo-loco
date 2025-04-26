@@ -16,7 +16,6 @@ class Cloud extends DrawableObject {
     moveCloud() {
         setInterval(() => {
             this.x -= this.speed;
-
             if (this.x + this.width < 0) {
                 this.x = 7200 + Math.random() * 500;
             }

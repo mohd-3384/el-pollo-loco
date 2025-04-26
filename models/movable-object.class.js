@@ -10,16 +10,12 @@ class MovableObject extends DrawableObject {
     loadImage(path) {
         const img = new Image();
         img.src = path;
-
         img.onload = () => {
             this.img = img;
         };
-
         this.imageCache = this.imageCache || {};
         this.imageCache[path] = img;
     }
-
-
 
     loadImages(imageArray) {
         this.imageCache = this.imageCache || {};
@@ -30,14 +26,11 @@ class MovableObject extends DrawableObject {
         });
     }
 
-
     moveLeftLoop(spawnX = 800, yRandomizer = null) {
         setInterval(() => {
             this.x -= this.speed;
-
             if (this.x + this.width < 0) {
                 this.x = spawnX + Math.random() * 200;
-
                 if (typeof yRandomizer === 'function') {
                     this.y = yRandomizer();
                 }
@@ -45,21 +38,15 @@ class MovableObject extends DrawableObject {
         }, 1000 / 60);
     }
 
-
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
-
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
-
-
 
     die() {
         if (this.dead) return;
         this.dead = true;
-
         const img = this.imageCache[this.deadImagePath];
-
         this.img = img;
         if (this.walkInterval) {
             clearInterval(this.walkInterval);

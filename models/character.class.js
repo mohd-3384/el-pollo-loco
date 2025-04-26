@@ -7,7 +7,6 @@ function initKeyboardControls() {
         if (e.code === 'Space') keyboard.SPACE = true;
         if (e.code === 'KeyD') keyboard.D = true;
     });
-
     window.addEventListener("keyup", e => {
         if (e.code === 'ArrowRight') keyboard.RIGHT = false;
         if (e.code === 'ArrowLeft') keyboard.LEFT = false;
@@ -15,7 +14,6 @@ function initKeyboardControls() {
         if (e.code === 'KeyD') keyboard.D = false;
     });
 }
-
 
 class Character extends MovableObject {
     idleImages = [
@@ -114,95 +112,112 @@ class Character extends MovableObject {
         this.keyboardIntervalStarted = false;
     }
 
-
     animate() {
         setInterval(() => {
             if (this.currentAnimation === 'dead' || this.isDead) return;
             if (this.isHurt) {
-                const hurtPath = this.hurtImages[this.currentIdleFrame % this.hurtImages.length];
-                const hurtImg = this.imageCache[hurtPath];
-                if (hurtImg instanceof HTMLImageElement && hurtImg.complete) {
-                    this.img = hurtImg;
-                }
-                this.currentIdleFrame++;
+                this.playHurtAnimation();
                 return;
             }
-            switch (this.currentAnimation) {
-                case 'walk':
-                    const walkImg = this.imageCache[this.walkImages[this.currentWalkFrame]];
-                    if (walkImg instanceof HTMLImageElement && walkImg.complete) {
-                        this.img = walkImg;
-                    }
-                    this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
-                    break;
-                case 'jump':
-                    const jumpImg = this.imageCache[this.jumpImages[this.currentJumpFrame]];
-                    if (jumpImg instanceof HTMLImageElement && jumpImg.complete) {
-                        this.img = jumpImg;
-                    }
-                    this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
-                    break;
-                default:
-                    const idleImg = this.imageCache[this.idleImages[this.currentIdleFrame]];
-                    if (idleImg instanceof HTMLImageElement && idleImg.complete) {
-                        this.img = idleImg;
-                    }
-                    this.currentIdleFrame = (this.currentIdleFrame + 1) % this.idleImages.length;
-            }
+            this.playMainAnimation();
         }, 100);
     }
 
+    playHurtAnimation() {
+        const path = this.hurtImages[this.currentIdleFrame % this.hurtImages.length];
+        const img = this.imageCache[path];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+        this.currentIdleFrame++;
+    }
+
+    playMainAnimation() {
+        switch (this.currentAnimation) {
+            case 'walk':
+                this.playWalkAnimation();
+                break;
+            case 'jump':
+                this.playJumpAnimation();
+                break;
+            default:
+                this.playIdleAnimation();
+        }
+    }
+
+    playWalkAnimation() {
+        const path = this.walkImages[this.currentWalkFrame];
+        const img = this.imageCache[path];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+        this.currentWalkFrame = (this.currentWalkFrame + 1) % this.walkImages.length;
+    }
+
+    playJumpAnimation() {
+        const path = this.jumpImages[this.currentJumpFrame];
+        const img = this.imageCache[path];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+        this.currentJumpFrame = (this.currentJumpFrame + 1) % this.jumpImages.length;
+    }
+
+    playIdleAnimation() {
+        const path = this.idleImages[this.currentIdleFrame];
+        const img = this.imageCache[path];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+        this.currentIdleFrame = (this.currentIdleFrame + 1) % this.idleImages.length;
+    }
 
     checkKeyboard() {
         if (this.keyboardIntervalStarted) return;
         this.keyboardIntervalStarted = true;
-
         this.keyboardInterval = setInterval(() => {
             if (this.isDead || window.gameOver) return;
-
             if (this.falling) {
                 this.applyGravity();
                 return;
             }
-
-            if (keyboard.RIGHT && this.x < 3000) {
-                this.x += this.speed;
-                this.facingLeft = false;
-                this.currentAnimation = 'walk';
-                this.playWalkSound();
-            }
-            else if (keyboard.LEFT && this.x > this.minX) {
-                this.x -= this.speed;
-                this.facingLeft = true;
-                this.currentAnimation = 'walk';
-                this.playWalkSound();
-            }
-            else if (this.isJumping()) {
-                this.currentAnimation = 'jump';
-            }
-            else {
-                this.currentAnimation = 'idle';
-                this.stopWalkSound();
-            }
-
-            if (keyboard.SPACE) {
-                this.jump();
-            }
-
-            if (keyboard.D && !this.previousD && this.canThrow) {
-                this.throwBottle();
-            }
-
-            this.previousD = keyboard.D;
-
-            if (this.isJumping()) {
-                this.currentAnimation = 'jump';
-            }
-
+            this.handleMovement();
+            this.handleJumpAndThrow();
             this.applyGravity();
         }, 1000 / 60);
     }
 
+    handleMovement() {
+        if (keyboard.RIGHT && this.x < 3000) {
+            this.x += this.speed;
+            this.facingLeft = false;
+            this.currentAnimation = 'walk';
+            this.playWalkSound();
+        } else if (keyboard.LEFT && this.x > this.minX) {
+            this.x -= this.speed;
+            this.facingLeft = true;
+            this.currentAnimation = 'walk';
+            this.playWalkSound();
+        } else if (this.isJumping()) {
+            this.currentAnimation = 'jump';
+        } else {
+            this.currentAnimation = 'idle';
+            this.stopWalkSound();
+        }
+    }
+
+    handleJumpAndThrow() {
+        if (keyboard.SPACE) {
+            this.jump();
+        }
+        if (keyboard.D && !this.previousD && this.canThrow) {
+            this.throwBottle();
+        }
+        this.previousD = keyboard.D;
+        if (this.isJumping()) {
+            this.currentAnimation = 'jump';
+        }
+    }
 
     jump() {
         if (this.jumpCount < this.maxJumps) {
@@ -214,17 +229,14 @@ class Character extends MovableObject {
         }
     }
 
-
     applyGravity() {
         if (this.velocityY < 0) {
             this.gravity = 0.4;
         } else {
             this.gravity = 0.8;
         }
-
         this.y += this.velocityY;
         this.velocityY += this.gravity;
-
         if (!this.falling && this.y >= this.groundY) {
             this.y = this.groundY;
             this.velocityY = 0;
@@ -232,17 +244,12 @@ class Character extends MovableObject {
         }
     }
 
-
     isJumping() {
         return this.y < this.groundY || this.velocityY < 0;
     }
 
-
     draw(ctx) {
-        if (!this.visible || !this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) {
-            return;
-        }
-
+        if (!this.visible || !this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
         if (this.facingLeft) {
             ctx.save();
             ctx.scale(-1, 1);
@@ -253,17 +260,14 @@ class Character extends MovableObject {
         }
     }
 
-
     fall() {
         this.velocityY = 2;
         this.gravity = 0.4;
         this.falling = true;
         this.currentAnimation = 'jump';
-
         const fallInterval = setInterval(() => {
             this.y += this.velocityY;
             this.velocityY += this.gravity;
-
             if (this.y >= this.groundY) {
                 this.y = this.groundY;
                 this.velocityY = 0;
@@ -274,13 +278,11 @@ class Character extends MovableObject {
         }, 1000 / 60);
     }
 
-
     playStartSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.startSound.volume = 0.5;
         this.startSound.play().catch(() => { });
     }
-
 
     playWalkSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
@@ -291,13 +293,11 @@ class Character extends MovableObject {
         }
     }
 
-
     stopWalkSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.walkSound.pause();
         this.walkSound.currentTime = 0;
     }
-
 
     playJumpSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
@@ -305,48 +305,64 @@ class Character extends MovableObject {
         this.jumpSound.play();
     }
 
-
     playHurtLoop() {
         if (this.hurtInterval) return;
-
         this.isHurt = true;
         let i = 0;
+        this.startHurtAnimation(i);
+        this.endHurtAnimation();
+    }
 
+    startHurtAnimation(i) {
         this.hurtInterval = setInterval(() => {
             if (!this.isHurt) {
-                clearInterval(this.hurtInterval);
-                this.hurtInterval = null;
+                this.clearHurtInterval();
                 return;
             }
-
-            const img = this.imageCache[this.hurtImages[i]];
-            if (img instanceof HTMLImageElement && img.complete) {
-                this.img = img;
-            }
-
+            this.showNextHurtFrame(i);
             i = (i + 1) % this.hurtImages.length;
         }, 300);
+    }
 
+    showNextHurtFrame(i) {
+        const img = this.imageCache[this.hurtImages[i]];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+    }
+
+    endHurtAnimation() {
         setTimeout(() => {
             this.isHurt = false;
-
-            const idleImg = this.imageCache[this.idleImages[0]];
-            if (idleImg instanceof HTMLImageElement && idleImg.complete) {
-                this.img = idleImg;
-                this.currentIdleFrame = 0;
-                this.currentAnimation = 'idle';
-            }
+            this.resetToIdle();
         }, 1500);
     }
 
+    resetToIdle() {
+        const idleImg = this.imageCache[this.idleImages[0]];
+        if (idleImg instanceof HTMLImageElement && idleImg.complete) {
+            this.img = idleImg;
+            this.currentIdleFrame = 0;
+            this.currentAnimation = 'idle';
+        }
+    }
+
+    clearHurtInterval() {
+        clearInterval(this.hurtInterval);
+        this.hurtInterval = null;
+    }
 
     dead() {
         if (this.deadInterval || this.isDead) return;
-
         this.isDead = true;
         this.currentAnimation = 'dead';
         this.currentDeadFrame = 0;
+        this.setupDeadImages();
+        this.playDeadSound();
+        this.startDeadAnimation();
+    }
 
+    setupDeadImages() {
         this.deadImages = [
             '../img/2_character_pepe/5_dead/D-51.png',
             '../img/2_character_pepe/5_dead/D-52.png',
@@ -357,65 +373,59 @@ class Character extends MovableObject {
             '../img/2_character_pepe/5_dead/D-57.png'
         ];
         this.loadImages(this.deadImages);
+    }
 
+    playDeadSound() {
         if (typeof isMuted === 'undefined' || !isMuted) {
             this.deadSound.volume = 0.5;
             this.deadSound.play().catch(() => { });
         }
+    }
 
+    startDeadAnimation() {
         this.deadInterval = setInterval(() => {
-            const path = this.deadImages[this.currentDeadFrame];
-            const img = this.imageCache[path];
-
-            if (img instanceof HTMLImageElement && img.complete) {
-                this.img = img;
-            }
-
-            this.currentDeadFrame++;
-
-            if (this.currentDeadFrame >= this.deadImages.length) {
-                clearInterval(this.deadInterval);
-                this.deadInterval = null;
-                this.startDeathFall();
-            }
+            this.updateDeadFrame();
         }, 200);
     }
 
+    updateDeadFrame() {
+        const path = this.deadImages[this.currentDeadFrame];
+        const img = this.imageCache[path];
+        if (img instanceof HTMLImageElement && img.complete) {
+            this.img = img;
+        }
+        this.currentDeadFrame++;
+        if (this.currentDeadFrame >= this.deadImages.length) {
+            clearInterval(this.deadInterval);
+            this.deadInterval = null;
+            this.startDeathFall();
+        }
+    }
 
     startDeathFall() {
         if (this.fallInterval) return;
-
         this.gravity = 1.2;
         this.velocityY = 5;
-
         this.fallInterval = setInterval(() => {
             this.y += this.velocityY;
             this.velocityY += this.gravity;
-
             if (this.y > 600) {
                 clearInterval(this.fallInterval);
                 this.fallInterval = null;
                 this.visible = false;
-
-                if (typeof showGameOverScreen === 'function') {
-                    showGameOverScreen();
-                }
+                if (typeof showGameOverScreen === 'function') showGameOverScreen();
             }
         }, 1000 / 60);
     }
 
-
     throwBottle() {
         if (this.bottles > 0 && this.canThrow) {
             this.canThrow = false;
-
             const direction = this.facingLeft ? -1 : 1;
             const bottle = new ThrowableObject(this.x + 50, this.y + 80, direction);
             world.throwables.push(bottle);
-
             this.bottles = Math.max(0, this.bottles - 20);
             world.statusBarBottle.setPercentage(this.bottles);
-
             setTimeout(() => {
                 this.canThrow = true;
             }, 500);

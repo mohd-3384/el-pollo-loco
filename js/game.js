@@ -9,7 +9,6 @@ backgroundMusic.volume = 0.05;
 let isMuted = false;
 const backgroundImagePaths = [];
 
-
 function preloadImages(imagePaths) {
     return Promise.all(
         imagePaths.map(path => {
@@ -23,7 +22,6 @@ function preloadImages(imagePaths) {
     );
 }
 
-
 for (let i = 0; i < 10; i++) {
     const suffix = (i % 2 === 0) ? '1' : '2';
     backgroundImagePaths.push(
@@ -33,7 +31,6 @@ for (let i = 0; i < 10; i++) {
         `./img/5_background/layers/1_first_layer/${suffix}.png`
     );
 }
-
 
 function toggleMute() {
     isMuted = !isMuted;
@@ -46,14 +43,11 @@ function toggleMute() {
     sounds.forEach(sound => {
         if (!sound) return;
         sound.volume = isMuted ? 0 : 0.5;
-        if (sound === backgroundMusic && !isMuted) {
-            sound.play().catch(() => { });
-        }
+        if (sound === backgroundMusic && !isMuted) sound.play().catch(() => { });
     });
     updateMuteIcon();
     localStorage.setItem('isMuted', JSON.stringify(isMuted));
 }
-
 
 function playSound(sound, volume = 0.5) {
     if (isMuted || !sound) return;
@@ -62,13 +56,11 @@ function playSound(sound, volume = 0.5) {
     sound.play().catch(() => { });
 }
 
-
 function updateMuteIcon() {
     const icon = document.getElementById('muteIcon');
     if (!icon) return;
     icon.src = isMuted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
 }
-
 
 function startMusic() {
     if (isMuted) return;
@@ -79,7 +71,6 @@ function startMusic() {
     }
 }
 
-
 function initGame() {
     canvas = document.getElementById('canvas');
     world = new World(canvas);
@@ -87,175 +78,196 @@ function initGame() {
     startCollisionDetection();
 }
 
-
 function startCollisionDetection() {
     const lastHitBy = new WeakMap();
-
     setInterval(() => {
-        if (window.gameOver || !world?.character || !world?.enemies || !world?.endboss) return;
-
-        let collisionDetected = false;
-        const allEnemies = [...world.enemies, world.endboss];
+        if (shouldSkipCollisionCheck()) return;
         const pepe = world.character;
-
-        allEnemies.forEach(enemy => {
-            if (!enemy || enemy.isDead || enemy.dead) return;
-
-            if (isColliding(pepe, enemy)) {
-                const isChicken = enemy.constructor.name === 'Chicken';
-                const isSmallChicken = enemy.constructor.name === 'SmallChicken';
-                const isEndboss = enemy.constructor.name === 'Endboss';
-
-                const characterMid = pepe.y + pepe.height / 2;
-                const enemyTop = enemy.y + (enemy.hitbox?.offsetY || 0);
-                const characterIsAbove = characterMid < enemyTop && pepe.velocityY > 0;
-
-                // 🐔 Chicken/SChicken von oben töten
-                if ((isChicken || isSmallChicken) && characterIsAbove) {
-                    playSound(boingSound);
-                    enemy.die?.();
-                    pepe.velocityY = -5;
-                    return;
-                }
-
-                // 💀 Endboss-Kollision = Tod
-                if (isEndboss) {
-                    pepe.energy = 0;
-                    world.statusBarHealth.setPercentage(0);
-                    pepe.dead();
-                    return;
-                }
-
-                // ❌ Frontaler Chicken-Treffer
-                if ((isChicken || isSmallChicken) && !pepe.isHurt && pepe.energy > 0 && !lastHitBy.has(enemy)) {
-                    pepe.isHurt = true;
-                    pepe.playHurtLoop?.();
-                    pepe.energy = Math.max(0, pepe.energy - 15);
-                    world.statusBarHealth.setPercentage(pepe.energy);
-                    lastHitBy.set(enemy, true);
-
-                    if (pepe.energy === 0) pepe.dead();
-                }
-
-                collisionDetected = true;
-            }
-        });
-
-        if (!collisionDetected && pepe.isHurt) {
-            pepe.isHurt = false;
-            allEnemies.forEach(e => lastHitBy.delete(e));
-        }
-
-        // 👀 Endboss aktivieren, wenn Pepe nahe kommt
-        if (!world.endboss.activated && world.endboss.x - pepe.x < 700) {
-            world.endboss.activate();
-        }
-
-        // 🧴 Endboss mit Flasche treffen
-        world.throwables = world.throwables.filter(bottle => {
-            if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
-                world.endboss.hitByBottle();
-                bottle.alreadyHitEndboss = true;
-                return false; // Flasche entfernen
-            }
-            return true;
-        });
-
-        // 🪙 Coins sammeln
-        world.coins = world.coins.filter(coin => {
-            if (isColliding(pepe, coin)) {
-                pepe.coins = Math.min(100, pepe.coins + 20);
-                world.statusBarCoin.setPercentage(pepe.coins);
-                playSound(coinSound);
-                return false;
-            }
-            return true;
-        });
-
-        // 🍾 Bottles sammeln
-        world.bottles = world.bottles.filter(bottle => {
-            if (isColliding(pepe, bottle)) {
-                pepe.bottles = Math.min(100, pepe.bottles + 20);
-                world.statusBarBottle.setPercentage(pepe.bottles);
-                playSound(bottleSound);
-                return false;
-            }
-            return true;
-        });
-
+        const allEnemies = [...world.enemies, world.endboss];
+        let collisionDetected = detectEnemyCollisions(allEnemies, pepe, lastHitBy);
+        if (!collisionDetected && pepe.isHurt) resetHurtState(allEnemies, pepe, lastHitBy);
+        activateEndbossIfNear(pepe);
+        checkThrowablesCollision();
+        collectCoins(pepe);
+        collectBottles(pepe);
     }, 1000 / 30);
 }
 
+function shouldSkipCollisionCheck() {
+    return window.gameOver || !world?.character || !world?.enemies || !world?.endboss;
+}
+
+function detectEnemyCollisions(allEnemies, pepe, lastHitBy) {
+    let collisionDetected = false;
+    allEnemies.forEach(enemy => {
+        if (!enemy || enemy.isDead || enemy.dead) return;
+        if (isColliding(pepe, enemy)) {
+            handleCollision(pepe, enemy, lastHitBy);
+            collisionDetected = true;
+        }
+    });
+    return collisionDetected;
+}
+
+function handleCollision(pepe, enemy, lastHitBy) {
+    const isChicken = enemy.constructor.name === 'Chicken' || enemy.constructor.name === 'SmallChicken';
+    const isEndboss = enemy.constructor.name === 'Endboss';
+    const characterIsAbove = (pepe.y + pepe.height / 2) < (enemy.y + (enemy.hitbox?.offsetY || 0)) && pepe.velocityY > 0;
+    if (isChicken && characterIsAbove) return stompEnemy(pepe, enemy);
+    if (isEndboss) return killPepe(pepe);
+    if (isChicken && !pepe.isHurt && pepe.energy > 0 && !lastHitBy.has(enemy)) {
+        hurtPepe(pepe, lastHitBy, enemy);
+    }
+}
+
+function stompEnemy(pepe, enemy) {
+    playSound(boingSound);
+    enemy.die?.();
+    pepe.velocityY = -5;
+}
+
+function killPepe(pepe) {
+    pepe.energy = 0;
+    world.statusBarHealth.setPercentage(0);
+    pepe.dead();
+}
+
+function hurtPepe(pepe, lastHitBy, enemy) {
+    pepe.isHurt = true;
+    pepe.playHurtLoop?.();
+    pepe.energy = Math.max(0, pepe.energy - 15);
+    world.statusBarHealth.setPercentage(pepe.energy);
+    lastHitBy.set(enemy, true);
+    if (pepe.energy === 0) pepe.dead();
+}
+
+function resetHurtState(allEnemies, pepe, lastHitBy) {
+    pepe.isHurt = false;
+    allEnemies.forEach(e => lastHitBy.delete(e));
+}
+
+function activateEndbossIfNear(pepe) {
+    if (!world.endboss.activated && world.endboss.x - pepe.x < 700) {
+        world.endboss.activate();
+    }
+}
+
+function checkThrowablesCollision() {
+    world.throwables = world.throwables.filter(bottle => {
+        if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
+            world.endboss.hitByBottle();
+            bottle.alreadyHitEndboss = true;
+            return false;
+        }
+        return true;
+    });
+}
+
+function collectCoins(pepe) {
+    world.coins = world.coins.filter(coin => {
+        if (isColliding(pepe, coin)) {
+            pepe.coins = Math.min(100, pepe.coins + 20);
+            world.statusBarCoin.setPercentage(pepe.coins);
+            playSound(coinSound);
+            return false;
+        }
+        return true;
+    });
+}
+
+function collectBottles(pepe) {
+    world.bottles = world.bottles.filter(bottle => {
+        if (isColliding(pepe, bottle)) {
+            pepe.bottles = Math.min(100, pepe.bottles + 20);
+            world.statusBarBottle.setPercentage(pepe.bottles);
+            playSound(bottleSound);
+            return false;
+        }
+        return true;
+    });
+}
 
 function isColliding(a, b) {
-    const boxA = {
-        x: a.x + (a.hitbox?.offsetX || 0),
-        y: a.y + (a.hitbox?.offsetY || 0),
-        width: a.hitbox?.width || a.width,
-        height: a.hitbox?.height || a.height
-    };
+    const boxA = getHitbox(a);
+    const boxB = getHitbox(b);
+    return checkBoxCollision(boxA, boxB);
+}
 
-    const boxB = {
-        x: b.x + (b.hitbox?.offsetX || 0),
-        y: b.y + (b.hitbox?.offsetY || 0),
-        width: b.hitbox?.width || b.width,
-        height: b.hitbox?.height || b.height
+function getHitbox(object) {
+    return {
+        x: object.x + (object.hitbox?.offsetX || 0),
+        y: object.y + (object.hitbox?.offsetY || 0),
+        width: object.hitbox?.width || object.width,
+        height: object.hitbox?.height || object.height
     };
+}
 
+function checkBoxCollision(boxA, boxB) {
     return boxA.x < boxB.x + boxB.width &&
         boxA.x + boxA.width > boxB.x &&
         boxA.y < boxB.y + boxB.height &&
         boxA.y + boxA.height > boxB.y;
 }
 
-
 async function startGame() {
     window.isPlaying = true;
+    prepareGameStart();
+    await setupGameWorld();
+    handleFullscreenOnMobile();
+    toggleMobileControls();
+    configureSoundVolumes();
+    startMusic();
+    hideGameOverScreen();
+}
 
-    hideButtons('startBtn', 'replayBtn');
+function prepareGameStart() {
+    hideButtons('startBtn', 'replayBtn', 'impressumContainer');
     hideStartScreen();
     hideVictoryScreen();
     clearCanvas();
     hideHomeButton();
     updateGameKeysVisibility();
-
     if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
     world = null;
     window.gameOver = false;
+}
 
+async function setupGameWorld() {
     initKeyboardControls();
     await preloadImages(backgroundImagePaths);
     initGame();
+}
 
+function handleFullscreenOnMobile() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
-
     if (isMobile && isLandscape && !document.fullscreenElement) {
         const wrapper = document.getElementById('canvasWrapper');
-        wrapper?.requestFullscreen?.().catch(() => { })
+        wrapper?.requestFullscreen?.().catch(() => { });
     }
+}
 
+function toggleMobileControls() {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const isLandscape = window.innerWidth > window.innerHeight;
     const mobileControls = document.getElementById('mobile-controls');
     if (mobileControls) {
         mobileControls.style.display = (isMobile && isLandscape) ? 'block' : 'none';
     }
+}
 
+function configureSoundVolumes() {
     const sounds = [
         world?.character?.startSound,
         world?.character?.walkSound,
         world?.character?.jumpSound,
         backgroundMusic
     ];
-
     sounds.forEach(sound => {
         if (!sound) return;
         sound.volume = isMuted ? 0 : 0.5;
     });
-
-    startMusic();
-    hideGameOverScreen();
 }
-
 
 function drawHitbox(obj, ctx) {
     if (!obj.hitbox) return;
@@ -271,88 +283,101 @@ function drawHitbox(obj, ctx) {
     ctx.restore();
 }
 
-
 function goHome() {
     window.gameOver = true;
     window.isPlaying = false;
+    stopWorldAndAudio();
+    resetWorldState();
+    resetUIToStartScreen();
+}
 
-    // Animation & Spiel stoppen
+function stopWorldAndAudio() {
     if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character) {
         world.character.walkSound?.pause();
         world.character.jumpSound?.pause();
     }
-
-    // Musik stoppen
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
+}
 
-    // Welt und Steuerung zurücksetzen
+function resetWorldState() {
     world = null;
     const mobileControls = document.getElementById('mobile-controls');
-    if (mobileControls) {
-        mobileControls.style.display = 'none';
-    }
-
-    // UI zurücksetzen
+    if (mobileControls) mobileControls.style.display = 'none';
     hideGameKeys();
-    hideButtons('replayBtn');
+    hideButtons('replayBtn', 'impressumContainer');
     hideVictoryScreen();
     hideGameOverScreen();
     hideHomeButton();
     clearCanvas();
+}
 
-    // Startbild sichtbar machen + Reset von Fade-Effekt
+function resetUIToStartScreen() {
     const startFrame = document.getElementById('startFrame');
     if (startFrame) {
         startFrame.classList.remove('fade-out');
         startFrame.style.display = 'block';
         startFrame.style.opacity = '1';
     }
-
-    showButtons('startBtn');
+    showButtons('startBtn', 'impressumContainer');
 }
-
 
 function showHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'flex';
 }
 
-
 function hideHomeButton() {
     const home = document.getElementById('home');
     if (home) home.style.display = 'none';
 }
 
-
 async function fullyResetGame() {
-    if (window.world?.drawFrame) cancelAnimationFrame(window.world.drawFrame);
+    stopWorldAndCharacter();
+    resetGameState();
+    clearUIAndCanvas();
+    resetAudio();
+    await waitShortDelay();
+}
+
+function stopWorldAndCharacter() {
+    if (window.world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character?.keyboardInterval) {
         clearInterval(world.character.keyboardInterval);
         world.character.keyboardInterval = null;
         world.character.keyboardIntervalStarted = false;
     }
+}
+
+function resetGameState() {
     window.gameOver = true;
     world = null;
     canvas = null;
     ctx = null;
     keyboard = {};
+}
+
+function clearUIAndCanvas() {
     clearCanvas();
-    hideButtons('replayBtn');
+    hideButtons('replayBtn', 'impressumContainer');
     hideVictoryScreen();
     hideGameOverScreen();
     hideHomeButton();
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
-    await new Promise(resolve => setTimeout(resolve, 50));
 }
 
+function resetAudio() {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+}
+
+function waitShortDelay() {
+    return new Promise(resolve => setTimeout(resolve, 50));
+}
 
 async function restartGame() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
-
     if (isMobile && isLandscape && !document.fullscreenElement) {
         const wrapper = document.getElementById('canvasWrapper');
         wrapper?.requestFullscreen?.().catch(() => { });
@@ -361,21 +386,28 @@ async function restartGame() {
     startGame();
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
+    restoreMuteState();
+});
+
+function restoreMuteState() {
     const storedMute = localStorage.getItem('isMuted');
     if (storedMute !== null) {
         isMuted = JSON.parse(storedMute);
         updateMuteIcon();
-        const sounds = [
-            world?.character?.startSound,
-            world?.character?.walkSound,
-            world?.character?.jumpSound,
-            backgroundMusic
-        ];
-        sounds.forEach(sound => {
-            if (!sound) return;
-            sound.volume = isMuted ? 0 : 0.5;
-        });
+        applyMuteToSounds();
     }
-});
+}
+
+function applyMuteToSounds() {
+    const sounds = [
+        world?.character?.startSound,
+        world?.character?.walkSound,
+        world?.character?.jumpSound,
+        backgroundMusic
+    ];
+    sounds.forEach(sound => {
+        if (!sound) return;
+        sound.volume = isMuted ? 0 : 0.5;
+    });
+}

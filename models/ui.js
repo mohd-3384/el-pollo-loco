@@ -2,31 +2,17 @@ function hideButtons(...ids) {
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-
-        const btn = el.querySelector('button');
-        if (btn) {
-            btn.style.display = 'none';
-        } else {
-            el.style.display = 'none';
-        }
+        el.style.display = 'none';
     });
 }
-
 
 function showButtons(...ids) {
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-
-        const btn = el.querySelector('button');
-        if (btn) {
-            btn.style.display = 'block';
-        } else {
-            el.style.display = 'block';
-        }
+        el.style.display = 'flex';
     });
 }
-
 
 function hideStartScreen() {
     const startFrame = document.getElementById('startFrame');
@@ -38,18 +24,27 @@ function hideStartScreen() {
     }
 }
 
-
 function showGameOverScreen() {
+    this.displayGameOverUI();
+    this.stopWorldAudio();
+    hideGameKeys();
+    window.gameOver = true;
+    showHomeButton();
+    showButtons('replayBtn', 'impressumContainer');
+}
+
+function displayGameOverUI() {
     const gameOverImage = document.getElementById('gameOverImage');
     const replayBtn = document.getElementById('replayBtn');
-
     if (gameOverImage) gameOverImage.style.display = 'block';
     if (replayBtn) {
         replayBtn.style.display = 'block';
         const btn = replayBtn.querySelector('button');
         if (btn) btn.style.display = 'block';
     }
+}
 
+function stopWorldAudio() {
     if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
     if (world?.character) {
         world.character.walkSound?.pause();
@@ -59,12 +54,7 @@ function showGameOverScreen() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
-    hideGameKeys();
-
-    window.gameOver = true;
-    showHomeButton();
 }
-
 
 function clearCanvas(canvasId = 'canvas') {
     const canvas = document.getElementById(canvasId);
@@ -74,14 +64,12 @@ function clearCanvas(canvasId = 'canvas') {
     }
 }
 
-
 function hideGameOverScreen() {
     const gameOverImage = document.getElementById('gameOverImage');
     if (gameOverImage) {
         gameOverImage.style.display = 'none';
     }
 }
-
 
 function hideVictoryScreen() {
     const youWon = document.getElementById('youWon');
@@ -90,23 +78,28 @@ function hideVictoryScreen() {
     }
 }
 
-
 function showGameKeys() {
     const keys = document.getElementById('gameKeys');
     if (keys) keys.style.display = 'block';
 }
-
 
 function hideGameKeys() {
     const keys = document.getElementById('gameKeys');
     if (keys) keys.style.display = 'none';
 }
 
-
 function showVictoryScreen() {
+    this.displayVictoryUI();
+    this.stopWorldAudio();
+    hideGameKeys();
+    window.gameOver = true;
+    showHomeButton();
+    showButtons('replayBtn', 'impressumContainer');
+}
+
+function displayVictoryUI() {
     const youWon = document.getElementById('youWon');
     const replayBtn = document.getElementById('replayBtn');
-
     if (youWon) {
         youWon.style.display = 'block';
     }
@@ -115,27 +108,12 @@ function showVictoryScreen() {
         const btn = replayBtn.querySelector('button');
         if (btn) btn.style.display = 'block';
     }
-    if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
-    if (world?.character) {
-        world.character.walkSound?.pause();
-        world.character.jumpSound?.pause();
-    }
-    if (backgroundMusic) {
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-    }
-
-    hideGameKeys();
-    window.gameOver = true;
-    showHomeButton();
 }
-
 
 function setupFullscreenToggle() {
     const canvasWrapper = document.getElementById('canvasWrapper');
     const fullIcon = document.getElementById('fullScreen');
     const smallIcon = document.getElementById('smallScreen');
-
     if (!document.fullscreenElement) {
         canvasWrapper.requestFullscreen().then(() => {
             fullIcon.style.display = 'none';
@@ -149,36 +127,59 @@ function setupFullscreenToggle() {
     }
 }
 
-
 function checkScreenOrientation() {
     const popup = document.getElementById('landscape-popup');
     const fullDiv = document.getElementById('full');
     const mobileControls = document.getElementById('mobile-controls');
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobile = detectMobile();
+    const isPortrait = isPortraitMode();
+    const isSmallDesktop = isSmallScreenDesktop();
+    handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls });
+}
 
-    if (isMobile && isPortrait) {
-        popup.style.display = 'flex';
-        if (fullDiv) fullDiv.style.display = 'none';
-        if (mobileControls) mobileControls.style.display = 'none';
-        updateGameKeysVisibility();
-        if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
-        exitFullscreen();
-        return;
+function detectMobile() {
+    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
+function isPortraitMode() {
+    return window.innerHeight > window.innerWidth;
+}
+
+function isSmallScreenDesktop() {
+    return !detectMobile() && window.innerWidth < 720;
+}
+
+function handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls }) {
+    if ((isMobile && isPortrait) || isSmallDesktop) {
+        handleShowRotatePopup(popup, fullDiv, mobileControls);
+    } else if (isMobile && !isPortrait) {
+        handleMobileLandscape(popup, fullDiv, mobileControls);
+    } else {
+        handleDesktopNormal(popup, fullDiv, mobileControls);
     }
+}
 
-    if (isMobile && !isPortrait) {
-        popup.style.display = 'none';
-        if (fullDiv) fullDiv.style.display = 'none';
-        if (mobileControls) mobileControls.style.display = 'block';
-        updateGameKeysVisibility();
-        requestFullscreenIfNotActive();
-        if (!window.gameOver && world && world.draw) {
-            world.drawFrame = requestAnimationFrame(() => world.draw());
-        }
-        return;
+function handleShowRotatePopup(popup, fullDiv, mobileControls) {
+    popup.style.display = 'flex';
+    if (fullDiv) fullDiv.style.display = 'none';
+    if (mobileControls) mobileControls.style.display = 'none';
+    updateGameKeysVisibility();
+    if (world?.drawFrame) cancelAnimationFrame(world.drawFrame);
+    exitFullscreen();
+}
+
+function handleMobileLandscape(popup, fullDiv, mobileControls) {
+    popup.style.display = 'none';
+    if (fullDiv) fullDiv.style.display = 'none';
+    if (mobileControls) mobileControls.style.display = 'block';
+    updateGameKeysVisibility();
+    requestFullscreenIfNotActive();
+    if (!window.gameOver && world && world.draw) {
+        world.drawFrame = requestAnimationFrame(() => world.draw());
     }
+}
 
+function handleDesktopNormal(popup, fullDiv, mobileControls) {
     popup.style.display = 'none';
     if (fullDiv) fullDiv.style.display = 'flex';
     if (mobileControls) mobileControls.style.display = 'none';
@@ -188,7 +189,6 @@ function checkScreenOrientation() {
     }
 }
 
-
 function requestFullscreenIfNotActive() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!document.fullscreenElement && wrapper?.requestFullscreen) {
@@ -196,13 +196,11 @@ function requestFullscreenIfNotActive() {
     }
 }
 
-
 function exitFullscreen() {
     if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => { });
     }
 }
-
 
 document.addEventListener('fullscreenchange', () => {
     const fullIcon = document.getElementById('fullScreen');
@@ -212,14 +210,12 @@ document.addEventListener('fullscreenchange', () => {
     smallIcon.style.display = isFullscreen ? 'block' : 'none';
 });
 
-
 function setupOrientationCheck() {
     window.addEventListener('load', checkScreenOrientation);
     window.addEventListener('resize', checkScreenOrientation);
     window.addEventListener('orientationchange', checkScreenOrientation);
 }
 setupOrientationCheck();
-
 
 function pressButton(key) {
     if (!keyboard) return;
@@ -229,22 +225,18 @@ function pressButton(key) {
     }, 150);
 }
 
-
 function handleButtonPress(key) {
     if (!keyboard) return;
     keyboard[key] = true;
 }
-
 
 function handleButtonRelease(key) {
     if (!keyboard) return;
     keyboard[key] = false;
 }
 
-
 document.addEventListener('mouseup', () => resetKeyboard());
 document.addEventListener('touchend', () => resetKeyboard());
-
 
 function resetKeyboard() {
     if (!keyboard) return;
@@ -254,13 +246,11 @@ function resetKeyboard() {
     keyboard.D = false;
 }
 
-
 function updateGameKeysVisibility() {
     if (!window.isPlaying) {
         hideGameKeys();
         return;
     }
-
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     if (!isMobile) {
         showGameKeys();

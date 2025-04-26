@@ -1,4 +1,5 @@
 class ThrowableObject extends MovableObject {
+
     constructor(x, y, direction) {
         super();
 
@@ -20,7 +21,6 @@ class ThrowableObject extends MovableObject {
         this.throw();
     }
 
-
     throw() {
         this.applyGravity();
         this.animateRotation();
@@ -28,7 +28,6 @@ class ThrowableObject extends MovableObject {
             this.x += this.speedX;
         }, 1000 / 60);
     }
-
 
     animateRotation() {
         let i = 0;
@@ -38,24 +37,20 @@ class ThrowableObject extends MovableObject {
         }, 100);
     }
 
-
     applyGravity() {
         this.gravityInterval = setInterval(() => {
             this.y -= this.speedY;
             this.speedY -= this.gravity;
-
             if (this.y > 400) {
                 this.remove();
             }
         }, 1000 / 60);
     }
 
-
     remove() {
         clearInterval(this.gravityInterval);
         clearInterval(this.moveInterval);
         clearInterval(this.rotationInterval);
-
         const idx = world.throwables.indexOf(this);
         if (idx > -1) world.throwables.splice(idx, 1);
     }

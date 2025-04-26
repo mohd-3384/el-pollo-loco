@@ -51,7 +51,6 @@ class Endboss extends MovableObject {
         };
     }
 
-
     animateIdle() {
         this.idleInterval = setInterval(() => {
             if (this.isDead) return;
@@ -64,7 +63,6 @@ class Endboss extends MovableObject {
         }, 200);
     }
 
-
     activate() {
         if (this.activated || this.isDead || window.gameOver) return;
         this.activated = true;
@@ -76,25 +74,17 @@ class Endboss extends MovableObject {
         }, 3000);
     }
 
-
     startWalking() {
         this.walkInterval = setInterval(() => {
             if (this.isDead || window.gameOver || !world?.character) return;
             const pepe = world.character;
             const path = this.walkImages[this.currentFrame % this.walkImages.length];
             const img = this.imageCache[path];
-            if (img instanceof HTMLImageElement && img.complete) {
-                this.img = img;
-            }
+            if (img instanceof HTMLImageElement && img.complete) this.img = img;
             this.currentFrame++;
-            if (this.x > pepe.x) {
-                this.x -= 2;
-            } else if (this.x < pepe.x) {
-                this.x += 2;
-            }
+            this.x += this.x < pepe.x ? 3 : this.x > pepe.x ? -3 : 0;
         }, 100);
     }
-
 
     hitByBottle() {
         if (this.isDead) return;
@@ -104,26 +94,22 @@ class Endboss extends MovableObject {
         }
     }
 
-
     die() {
         this.isDead = true;
         clearInterval(this.walkInterval);
         this.currentFrame = 0;
-        this.deathInterval = setInterval(() => {
-            const path = this.deadImages[this.currentFrame];
-            const img = this.imageCache[path];
-            if (img instanceof HTMLImageElement && img.complete) {
-                this.img = img;
-            }
-            this.currentFrame++;
-
-            if (this.currentFrame >= this.deadImages.length) {
-                clearInterval(this.deathInterval);
-                this.fallDown();
-            }
-        }, 250);
+        this.deathInterval = setInterval(() => this.playDeathAnimation(), 250);
     }
 
+    playDeathAnimation() {
+        const path = this.deadImages[this.currentFrame];
+        const img = this.imageCache[path];
+        if (img?.complete) this.img = img;
+        if (++this.currentFrame >= this.deadImages.length) {
+            clearInterval(this.deathInterval);
+            this.fallDown();
+        }
+    }
 
     fallDown() {
         window.gameOver = true;
@@ -135,7 +121,6 @@ class Endboss extends MovableObject {
             }
         }, 1000 / 60);
     }
-
 
     draw(ctx) {
         if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) {

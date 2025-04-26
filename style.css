@@ -79,7 +79,8 @@ canvas {
 
 #muteIconContainer,
 #full,
-#home {
+#home,
+.impressum-container {
     position: absolute;
     top: 16px;
     right: 150px;
@@ -93,6 +94,15 @@ canvas {
     align-items: center;
     border: 2px solid black;
     border-radius: 50%;
+}
+
+.impressum-container {
+    right: 28px;
+}
+
+.impressum-container img {
+    width: 26px;
+    height: 26px;
 }
 
 #full {
@@ -253,6 +263,23 @@ canvas {
 .throw-container img {
     width: 40px;
     cursor: pointer;
+}
+
+.impr-body {
+    overflow: auto;
+}
+
+.impr-content {
+    font-family: 'Luckiest Guy';
+    font-size: large;
+    letter-spacing: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    background-color: rgb(255, 255, 255, 0.6);
+    padding: 24px;
+    border-radius: 8px;
+    margin: 8px;
 }
 
 @media screen and (max-width: 720px) {

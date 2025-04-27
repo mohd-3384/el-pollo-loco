@@ -222,24 +222,6 @@ class Character extends MovableObject {
     }
 
     /**
-    * Starts checking keyboard input and updates the character's movement and gravity.
-    */
-    checkKeyboard() {
-        if (this.keyboardIntervalStarted) return;
-        this.keyboardIntervalStarted = true;
-        this.keyboardInterval = setInterval(() => {
-            if (this.isDead || window.gameOver) return;
-            if (this.falling) {
-                this.applyGravity();
-                return;
-            }
-            this.handleMovement();
-            this.handleJumpAndThrow();
-            this.applyGravity();
-        }, 1000 / 60);
-    }
-
-    /**
     * Handles character movement based on keyboard input and state.
     */
     handleMovement() {
@@ -469,19 +451,6 @@ class Character extends MovableObject {
     }
 
     /**
-    * Triggers the death animation and sound.
-    */
-    dead() {
-        if (this.deadInterval || this.isDead) return;
-        this.isDead = true;
-        this.currentAnimation = 'dead';
-        this.currentDeadFrame = 0;
-        this.loadImages(this.deadImages);
-        this.playDeadSound();
-        this.startDeadAnimation();
-    }
-
-    /**
     * Plays the death sound if not muted.
     */
     playDeadSound() {
@@ -513,6 +482,20 @@ class Character extends MovableObject {
             this.deadInterval = null;
             this.startDeathFall();
         }
+    }
+
+    /**
+    * Triggers the death animation and sound.
+    */
+    dead() {
+        if (this.deadInterval || this.isDead) return;
+        this.isDead = true;
+        this.currentAnimation = 'dead';
+        this.currentDeadFrame = 0;
+        this.loadImages(this.deadImages);
+        this.playDeadSound();
+        this.startDeadAnimation();
+        this.stopSleepAnimation();
     }
 
     /**
@@ -616,8 +599,8 @@ class Character extends MovableObject {
     }
 
     /**
-   * Overrides the `check Keyboard` method to stop the sleep animation when Pepe moves.
-   */
+    * Starts checking keyboard input and updates the character's movement and gravity.
+    */
     checkKeyboard() {
         if (this.keyboardIntervalStarted) return;
         this.keyboardIntervalStarted = true;
@@ -632,19 +615,5 @@ class Character extends MovableObject {
             this.handleJumpAndThrow();
             this.applyGravity();
         }, 1000 / 60);
-    }
-
-    /**
-    * Overrides the `dead` method to stop the sleep animation when the game ends.
-    */
-    dead() {
-        if (this.deadInterval || this.isDead) return;
-        this.isDead = true;
-        this.currentAnimation = 'dead';
-        this.currentDeadFrame = 0;
-        this.loadImages(this.deadImages);
-        this.playDeadSound();
-        this.startDeadAnimation();
-        this.stopSleepAnimation();
     }
 }

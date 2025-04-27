@@ -176,11 +176,13 @@ canvas {
     position: absolute;
     top: 20px;
     left: 240px;
+    font-family: 'Luckiest Guy';
+    letter-spacing: 1px;
     font-size: 20px;
-    font-weight: bold;
-    color: #3b2212;
+    /* font-weight: bold; */
+    color: #a0220a;
     z-index: 100;
-    text-shadow: 1px 1px white;
+    text-shadow: 1px 1px #ed9046;
     display: none;
 }
 
@@ -301,6 +303,11 @@ canvas {
         width: 100vw;
         height: 100vh;
     }
+
+    #gameKeys,
+    .title {
+        display: none;
+    }
 }
 
 @media screen and (max-height: 480px) {
@@ -311,7 +318,9 @@ canvas {
 }
 
 @media screen and (max-width: 720px) and (orientation: landscape) {
-    #gameKeys {
+
+    #gameKeys,
+    .title {
         display: none;
     }
 

@@ -560,7 +560,7 @@ class Character extends MovableObject {
             clearTimeout(this.inactivityTimer);
             this.inactivityTimer = setTimeout(() => {
                 this.startSleepAnimation();
-            }, 6000);
+            }, 8000);
         };
         window.addEventListener('keydown', resetTimer);
         window.addEventListener('mousedown', resetTimer);

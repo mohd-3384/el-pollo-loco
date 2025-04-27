@@ -1,5 +1,11 @@
 let keyboard = {};
 
+/**
+ * Initializes keyboard event listeners for player controls.
+ * 
+ * Sets flags in the global `keyboard` object based on key presses and releases.
+ * Handles right, left, jump (space), and throw (D) inputs.
+ */
 function initKeyboardControls() {
     window.addEventListener("keydown", e => {
         if (e.code === 'ArrowRight') keyboard.RIGHT = true;
@@ -63,6 +69,22 @@ class Character extends MovableObject {
         '../img/2_character_pepe/1_idle/long_idle/I-20.png'
     ];
 
+    hurtImages = [
+        '../img/2_character_pepe/4_hurt/H-41.png',
+        '../img/2_character_pepe/4_hurt/H-42.png',
+        '../img/2_character_pepe/4_hurt/H-43.png'
+    ];
+
+    deadImages = [
+        '../img/2_character_pepe/5_dead/D-51.png',
+        '../img/2_character_pepe/5_dead/D-52.png',
+        '../img/2_character_pepe/5_dead/D-53.png',
+        '../img/2_character_pepe/5_dead/D-54.png',
+        '../img/2_character_pepe/5_dead/D-55.png',
+        '../img/2_character_pepe/5_dead/D-56.png',
+        '../img/2_character_pepe/5_dead/D-57.png'
+    ];
+
     snoreSound = new Audio('../audio/snore.mp3');
     inactivityTimer = null;
     isSleeping = false;
@@ -99,6 +121,8 @@ class Character extends MovableObject {
         this.loadImages(this.walkImages);
         this.loadImages(this.jumpImages);
         this.loadImages(this.sleepImages);
+        this.loadImages(this.hurtImages);
+        this.loadImages(this.deadImages);
 
         this.x = 200;
         this.y = -50;
@@ -119,14 +143,6 @@ class Character extends MovableObject {
             width: this.width - 80,
             height: this.height - 135
         };
-
-        this.hurtImages = [
-            '../img/2_character_pepe/4_hurt/H-41.png',
-            '../img/2_character_pepe/4_hurt/H-42.png',
-            '../img/2_character_pepe/4_hurt/H-43.png'
-        ];
-
-        this.loadImages(this.hurtImages);
         this.keyboardIntervalStarted = false;
     }
 
@@ -460,25 +476,9 @@ class Character extends MovableObject {
         this.isDead = true;
         this.currentAnimation = 'dead';
         this.currentDeadFrame = 0;
-        this.setupDeadImages();
+        this.loadImages(this.deadImages);
         this.playDeadSound();
         this.startDeadAnimation();
-    }
-
-    /**
-    * Loads images for the death animation.
-    */
-    setupDeadImages() {
-        this.deadImages = [
-            '../img/2_character_pepe/5_dead/D-51.png',
-            '../img/2_character_pepe/5_dead/D-52.png',
-            '../img/2_character_pepe/5_dead/D-53.png',
-            '../img/2_character_pepe/5_dead/D-54.png',
-            '../img/2_character_pepe/5_dead/D-55.png',
-            '../img/2_character_pepe/5_dead/D-56.png',
-            '../img/2_character_pepe/5_dead/D-57.png'
-        ];
-        this.loadImages(this.deadImages);
     }
 
     /**
@@ -642,7 +642,7 @@ class Character extends MovableObject {
         this.isDead = true;
         this.currentAnimation = 'dead';
         this.currentDeadFrame = 0;
-        this.setupDeadImages();
+        this.loadImages(this.deadImages);
         this.playDeadSound();
         this.startDeadAnimation();
         this.stopSleepAnimation();

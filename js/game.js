@@ -434,7 +434,52 @@ function stopWorldAndAudio() {
  * Resets world and UI after game ends.
  */
 function resetWorldState() {
+    if (world) {
+        resetWorldObjects();
+        resetCharacterState();
+        resetEndbossState();
+    }
     world = null;
+    resetUIState();
+}
+
+/** 
+ * Resets general world objects
+ */
+function resetWorldObjects() {
+    if (world.throwables) world.throwables = [];
+    if (world.statusBarHealth) world.statusBarHealth.setPercentage(100);
+    if (world.statusBarCoin) world.statusBarCoin.setPercentage(0);
+    if (world.statusBarBottle) world.statusBarBottle.setPercentage(0);
+}
+
+/** 
+ * Resets the character's status
+ */
+function resetCharacterState() {
+    if (!world.character) return;
+    world.character.energy = 100;
+    world.character.coins = 0;
+    world.character.bottles = 0;
+    world.character.isHurt = false;
+    world.character.isDead = false;
+    world.character.currentAnimation = 'idle';
+}
+
+/** 
+ * Resets the final boss's status
+ */
+function resetEndbossState() {
+    if (!world.endboss) return;
+    world.endboss.isDead = false;
+    world.endboss.hits = 0;
+    world.endboss.activated = false;
+}
+
+/** 
+ * Resets the user interface
+ */
+function resetUIState() {
     const mobileControls = document.getElementById('mobile-controls');
     if (mobileControls) mobileControls.style.display = 'none';
     hideGameKeys();

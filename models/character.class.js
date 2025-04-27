@@ -365,7 +365,7 @@ class Character extends MovableObject {
         if (this.walkSound.paused) {
             this.walkSound.volume = 0.3;
             this.walkSound.loop = true;
-            this.walkSound.play();
+            this.walkSound.play().catch(() => { });
         }
     }
 
@@ -384,7 +384,7 @@ class Character extends MovableObject {
     playJumpSound() {
         if (typeof isMuted !== 'undefined' && isMuted) return;
         this.jumpSound.volume = 0.4;
-        this.jumpSound.play();
+        this.jumpSound.play().catch(() => { });
     }
 
     /**
@@ -578,7 +578,7 @@ class Character extends MovableObject {
         this.currentIdleFrame = 0;
         this.snoreSound.loop = true;
         this.snoreSound.volume = 0.5;
-        if (!isMuted) this.snoreSound.play();
+        if (!isMuted) this.snoreSound.play().catch(() => { });
         this.sleepInterval = setInterval(() => {
             const path = this.sleepImages[this.currentIdleFrame % this.sleepImages.length];
             const img = this.imageCache[path];

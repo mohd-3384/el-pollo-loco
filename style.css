@@ -8,6 +8,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    gap: 16px;
     height: 100vh;
     background-image: url('./img/desert.jpg');
     background-size: cover;
@@ -21,7 +23,14 @@ body {
     font-style: normal;
     font-weight: 400;
     src: url('../fonts/luckiest-guy-v23-latin-regular.woff2') format('woff2');
-    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+.title {
+    font-family: 'Luckiest Guy';
+    text-shadow: 0 0 40px #ED6A36;
+    color: #A0220A;
+    font-size: 40px;
+    letter-spacing: 2px;
 }
 
 #canvasWrapper {
@@ -288,6 +297,13 @@ canvas {
 }
 
 @media screen and (max-width: 720px) {
+    #canvasWrapper {
+        width: 100vw;
+        height: 100vh;
+    }
+}
+
+@media screen and (max-height: 480px) {
     #canvasWrapper {
         width: 100vw;
         height: 100vh;

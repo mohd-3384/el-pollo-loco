@@ -86,6 +86,7 @@ function detectEnemyCollisions(allEnemies, pepe, lastHitBy) {
  * @param {WeakMap} lastHitBy 
  */
 function handleCollision(pepe, enemy, lastHitBy) {
+    if (pepe.isDead) return;
     const isChicken = enemy.constructor.name === 'Chicken' || enemy.constructor.name === 'SmallChicken';
     const isEndboss = enemy.constructor.name === 'Endboss';
     const characterIsAbove = (pepe.y + pepe.height / 2) < (enemy.y + (enemy.hitbox?.offsetY || 0)) && pepe.velocityY > 0;
@@ -117,16 +118,14 @@ function activateEndbossIfNear(pepe) {
     }
 }
 
-/** 
- * Checks for collision between bottles and endboss.
+/**
+ * Checks for collisions between throwable bottles and enemies or the endboss.
+ * Removes bottles after a successful hit.
  */
 function checkThrowablesCollision() {
     world.throwables = world.throwables.filter(bottle => {
-        if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
-            world.endboss.hitByBottle();
-            bottle.alreadyHitEndboss = true;
-            return false;
-        }
+        if (checkEndbossCollision(bottle)) return false;
+        if (checkEnemyCollision(bottle)) return false;
         return true;
     });
 }

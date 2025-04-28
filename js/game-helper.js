@@ -226,3 +226,35 @@ function resetHurtState(allEnemies, pepe, lastHitBy) {
     pepe.isHurt = false;
     allEnemies.forEach(e => lastHitBy.delete(e));
 }
+
+/**
+ * Checks if a bottle collides with the endboss and applies damage.
+ * @param {ThrowableObject} bottle - The thrown bottle to check.
+ * @returns {boolean} True if collision with endboss occurred, otherwise false.
+ */
+function checkEndbossCollision(bottle) {
+    if (!bottle.alreadyHitEndboss && isColliding(bottle, world.endboss)) {
+        world.endboss.hitByBottle();
+        bottle.alreadyHitEndboss = true;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Checks if a bottle collides with a chicken or small chicken and kills it.
+ * @param {ThrowableObject} bottle - The thrown bottle to check.
+ * @returns {boolean} True if collision with a chicken occurred, otherwise false.
+ */
+function checkEnemyCollision(bottle) {
+    for (let i = 0; i < world.enemies.length; i++) {
+        const enemy = world.enemies[i];
+        if (!enemy.isDead && (enemy instanceof Chicken || enemy instanceof SmallChicken) && isColliding(bottle, enemy)) {
+            enemy.die?.();
+            playSound(boingSound);
+            bottle.remove?.();
+            return true;
+        }
+    }
+    return false;
+}

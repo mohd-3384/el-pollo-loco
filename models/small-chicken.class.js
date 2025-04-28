@@ -58,6 +58,9 @@ class SmallChicken extends MovableObject {
     die() {
         if (this.dead) return;
         this.dead = true;
+        this.speed = 0;
+        this.velocityY = 0;
+        clearInterval(this.walkInterval);
         this.stopAndShowDeadImage();
         this.removeFromWorldAfterDelay();
     }
@@ -103,6 +106,6 @@ class SmallChicken extends MovableObject {
     */
     dieFromBottle() {
         if (this.isDead) return;
-        this.die(); // Ruft die bestehende Tötungs-Animation und Sound auf
+        this.die();
     }
 }

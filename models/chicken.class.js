@@ -58,6 +58,9 @@ class Chicken extends MovableObject {
     die() {
         if (this.dead) return;
         this.dead = true;
+        this.speed = 0;
+        this.velocityY = 0;
+        clearInterval(this.walkInterval);
         this.stopAndShowDeadImage();
         this.removeFromWorldLater();
     }

@@ -92,15 +92,6 @@ class SmallChicken extends MovableObject {
     }
 
     /**
-    * Draws the object on the canvas.
-    * @param {CanvasRenderingContext2D} ctx - The canvas context.
-     */
-    draw(ctx) {
-        if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
-
-    /**
     * Triggers the character's death sequence when hit by a throwable object.
     * Calls the existing death animation and sound if the character is not already dead.
     */

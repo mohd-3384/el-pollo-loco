@@ -16,13 +16,4 @@ class Bottle extends MovableObject {
             height: this.height - 20
         };
     }
-
-    /**
-    * Draws the current image of the object on the canvas.
-    * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
-    */
-    draw(ctx) {
-        if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
 }

@@ -32,13 +32,4 @@ class Coin extends MovableObject {
             i = (i + 1) % this.images.length;
         }, 300);
     }
-
-    /**
-    * Draws the object image on the canvas.
-    * @param {CanvasRenderingContext2D} ctx - The canvas drawing context.
-    */
-    draw(ctx) {
-        if (!this.img || !(this.img instanceof HTMLImageElement) || !this.img.complete) return;
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
 }

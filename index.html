@@ -104,9 +104,25 @@
             <img onclick="setupFullscreenToggle()" id="smallScreen" src="img/icons/exitfullscreen.png" alt="">
         </div>
 
-        <!-- impressum -->
+        <!-- impressum button -->
         <div id="impressumContainer" class="impressum-container">
-            <a href="impressum.html" target="_blank"><img src="./img/icons/agreement.png" alt="Impressum"></a>
+            <img onclick="showImpressum()" src="./img/icons/agreement.png" alt="Impressum">
+        </div>
+
+        <!-- impressum -->
+        <div class="impr-content" id="impressumContent">
+            <div class="impr-head">
+                <h1>Impressum</h1>
+                <h3 id="close" onclick="hideImpressum()">X</h3>
+            </div>
+            <p>Angaben gemäß § 5 DDG</p>
+            <p>Mohammed Abumustafa</p>
+            <p> <strong>Vertreten durch: </strong><br>
+                Developer Akademie<br>
+            </p>
+            <p><strong>Kontakt:</strong> <br>
+                E-Mail: <a href='mailto:'>mohammed.abumustafa@muster.de</a></br>
+            </p>
         </div>
 
         <!-- Game Over Image -->
@@ -118,7 +134,6 @@
         <div id="youWon">
             <img src="./img/Youwon-youlost/You-won-A.png" alt="">
         </div>
-    </div>
 
 </body>
 

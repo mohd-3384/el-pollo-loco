@@ -112,6 +112,7 @@ canvas {
 .impressum-container img {
     width: 26px;
     height: 26px;
+    cursor: pointer;
 }
 
 #full {
@@ -173,17 +174,19 @@ canvas {
 }
 
 #gameKeys {
-    position: absolute;
-    top: 20px;
-    left: 240px;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 16px;
+    margin-top: 12px;
+    background-color: rgb(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 10px;
     font-family: 'Luckiest Guy';
     letter-spacing: 1px;
-    font-size: 20px;
-    /* font-weight: bold; */
-    color: #a0220a;
+    font-size: 18px;
+    color: #ed9046;
     z-index: 100;
-    text-shadow: 1px 1px #ed9046;
-    display: none;
+    text-shadow: 2px 2px #a0220a;
 }
 
 #landscape-popup {
@@ -276,25 +279,44 @@ canvas {
     cursor: pointer;
 }
 
-.impr-body {
-    overflow: auto;
-}
-
 .impr-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: 'Luckiest Guy';
     font-size: large;
     letter-spacing: 1.1px;
     display: flex;
     flex-direction: column;
     gap: 26px;
-    background-color: rgb(0, 0, 0, 0.8);
+    background-color: rgb(0, 0, 0, 0.9);
     color: #ffc107;
+    box-shadow: 0 0 5px 5px #ffc107;
     padding: 24px;
     border-radius: 8px;
     margin: 8px;
+    z-index: 99999;
+    display: none;
 
     a {
         color: #ff9800;
+    }
+
+    .impr-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #close {
+        font-size: 32px;
+        cursor: pointer;
+        transition: .15s;
+    }
+
+    #close:hover {
+        color: #ED6A36;
     }
 }
 

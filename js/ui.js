@@ -113,7 +113,7 @@ function hideVictoryScreen() {
  */
 function showGameKeys() {
     const keys = document.getElementById('gameKeys');
-    if (keys) keys.style.display = 'block';
+    if (keys) keys.style.display = 'flex';
 }
 
 /**
@@ -357,4 +357,14 @@ function updateGameKeysVisibility() {
     } else {
         hideGameKeys();
     }
+}
+
+function showImpressum() {
+    let impressumContent = document.getElementById('impressumContent');
+    impressumContent.style.display = 'flex';
+}
+
+function hideImpressum() {
+    let impressumContent = document.getElementById('impressumContent');
+    impressumContent.style.display = 'none';
 }

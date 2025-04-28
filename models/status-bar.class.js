@@ -30,6 +30,8 @@ class StatusBar extends DrawableObject {
                 return this.getStatusbarPaths(base, '1_statusbar_coin/green');
             case 'bottle':
                 return this.getStatusbarPaths(base, '3_statusbar_bottle/orange');
+            case 'endboss':
+                return this.getStatusbarPaths('./img/7_statusbars', '2_statusbar_endboss/blue');
             default:
                 return [];
         }

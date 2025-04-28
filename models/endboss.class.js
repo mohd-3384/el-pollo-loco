@@ -102,6 +102,7 @@ class Endboss extends MovableObject {
     hitByBottle() {
         if (this.isDead) return;
         this.hits++;
+        world.statusBarEndboss.setPercentage(100 - this.hits * 33);
         if (this.hits >= 3) {
             this.die();
         }

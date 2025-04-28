@@ -133,10 +133,12 @@ class World {
     */
     initStatusBars() {
         this.statusBarHealth = new StatusBar('health', 20, 4);
+        this.statusBarEndboss = new StatusBar('endboss', 220, 10);
         this.statusBarCoin = new StatusBar('coin', 20, 54);
         this.statusBarBottle = new StatusBar('bottle', 20, 102);
         this.statusBarCoin.setPercentage(0);
         this.statusBarBottle.setPercentage(0);
+        this.statusBarEndboss.setPercentage(100);
     }
 
     /**
@@ -207,5 +209,16 @@ class World {
         this.statusBarHealth.draw(this.ctx);
         this.statusBarCoin.draw(this.ctx);
         this.statusBarBottle.draw(this.ctx);
+        if (this.isEndbossVisible()) {
+            this.statusBarEndboss.draw(this.ctx);
+        }
+    }
+
+    /**
+     * Visibility of Endboss 
+     * @returns Boolean
+     */
+    isEndbossVisible() {
+        return this.character.x + this.canvas.width > this.endboss.x && !this.endboss.isDead;
     }
 }

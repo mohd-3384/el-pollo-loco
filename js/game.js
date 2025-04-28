@@ -208,6 +208,7 @@ function toggleMobileControls() {
         mobileControls.style.display = (isMobile && isLandscape) ? 'block' : 'none';
     }
 }
+window.addEventListener('resize', toggleMobileControls);
 
 /** 
  * Configures volume for all game sounds.

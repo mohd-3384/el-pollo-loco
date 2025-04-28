@@ -351,19 +351,23 @@ function updateGameKeysVisibility() {
         hideGameKeys();
         return;
     }
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (!isMobile) {
-        showGameKeys();
-    } else {
-        hideGameKeys();
-    }
+    const isMobile = /Mobi|Android|iPhone|iPad|Tablet/i.test(navigator.userAgent);
+    const isLandscape = window.innerWidth > window.innerHeight;
+    if (isMobile && isLandscape) hideGameKeys();
+    else showGameKeys();
 }
 
+/**
+ * Displays the impressum content by setting its display style to 'flex'.
+ */
 function showImpressum() {
     let impressumContent = document.getElementById('impressumContent');
     impressumContent.style.display = 'flex';
 }
 
+/**
+ * Hides the impressum content by setting its display style to 'none'.
+ */
 function hideImpressum() {
     let impressumContent = document.getElementById('impressumContent');
     impressumContent.style.display = 'none';

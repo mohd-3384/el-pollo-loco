@@ -214,15 +214,18 @@ function isSmallScreenDesktop() {
  * @param {Object} params - Orientation and device status.
  */
 function handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls }) {
-    const isSmallMobilePortrait = isMobile && isPortrait && window.innerWidth <= 720;
-
-    if (isSmallMobilePortrait || isSmallDesktop) {
-        handleShowRotatePopup(popup, fullDiv, mobileControls);
-    } else if (isMobile && !isPortrait) {
-        handleMobileLandscape(popup, fullDiv, mobileControls);
-    } else {
-        handleDesktopNormal(popup, fullDiv, mobileControls);
-    }
+    const isTabletDevice = isTablet();
+    const isSmallMobilePortrait = isMobile && isPortrait && window.innerWidth <= 720 && !isTabletDevice;
+    if (isSmallMobilePortrait || isSmallDesktop) handleShowRotatePopup(popup, fullDiv, mobileControls);
+    else if (isMobile && !isPortrait && !isTabletDevice) handleMobileLandscape(popup, fullDiv, mobileControls);
+    else if (isTabletDevice && window.innerWidth >= 720) {
+        popup.style.display = 'none';
+        if (fullDiv) fullDiv.style.display = 'none';
+        mobileControls.style.display = 'block';
+        updateGameKeysVisibility();
+        requestFullscreenIfNotActive();
+        if (!window.gameOver && world && world.draw) world.drawFrame = requestAnimationFrame(() => world.draw());
+    } else handleDesktopNormal(popup, fullDiv, mobileControls);
 }
 
 /**
@@ -302,18 +305,6 @@ function setupOrientationCheck() {
 setupOrientationCheck();
 
 /**
- * Simulates a short button press.
- * @param {string} key - Keyboard key.
- */
-function pressButton(key) {
-    if (!keyboard) return;
-    keyboard[key] = true;
-    setTimeout(() => {
-        keyboard[key] = false;
-    }, 150);
-}
-
-/**
  * Handles button press event.
  * @param {string} key - Keyboard key.
  */
@@ -331,19 +322,19 @@ function handleButtonRelease(key) {
     keyboard[key] = false;
 }
 
-document.addEventListener('mouseup', () => resetKeyboard());
-document.addEventListener('touchend', () => resetKeyboard());
+// document.addEventListener('mouseup', () => resetKeyboard());
+// document.addEventListener('touchend', () => resetKeyboard());
 
 /**
  * Resets all keyboard input states.
  */
-function resetKeyboard() {
-    if (!keyboard) return;
-    keyboard.LEFT = false;
-    keyboard.RIGHT = false;
-    keyboard.SPACE = false;
-    keyboard.D = false;
-}
+// function resetKeyboard() {
+//     if (!keyboard) return;
+//     keyboard.LEFT = false;
+//     keyboard.RIGHT = false;
+//     keyboard.SPACE = false;
+//     keyboard.D = false;
+// }
 
 /**
  * Updates the visibility of mobile game keys based on play status.
@@ -373,4 +364,14 @@ function showImpressum() {
 function hideImpressum() {
     let impressumContent = document.getElementById('impressumContent');
     impressumContent.style.display = 'none';
+}
+
+/**
+ * Detects if device is a tablet/iPad based on screen size and user agent.
+ * @returns {boolean}
+ */
+function isTablet() {
+    const isIPad = /Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 0;
+    const isAndroidTablet = /Android/i.test(navigator.userAgent) && window.innerWidth >= 768;
+    return isIPad || isAndroidTablet;
 }

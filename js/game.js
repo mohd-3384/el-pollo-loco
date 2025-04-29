@@ -204,11 +204,13 @@ function toggleMobileControls() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const isLandscape = window.innerWidth > window.innerHeight;
     const mobileControls = document.getElementById('mobile-controls');
-    if (mobileControls) {
-        mobileControls.style.display = (isMobile && isLandscape) ? 'block' : 'none';
-    }
+    if (!mobileControls) return;
+    if (isTablet()) mobileControls.style.display = (window.innerWidth >= 720) ? 'block' : 'none';
+    else if (isMobile) mobileControls.style.display = isLandscape ? 'block' : 'none';
+    else mobileControls.style.display = 'none';
 }
 window.addEventListener('resize', toggleMobileControls);
+window.addEventListener('orientationchange', toggleMobileControls);
 
 /** 
  * Configures volume for all game sounds.

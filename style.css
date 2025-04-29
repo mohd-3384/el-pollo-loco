@@ -302,10 +302,6 @@ canvas {
     z-index: 99999;
     display: none;
 
-    a {
-        color: #ff9800;
-    }
-
     .impr-head {
         display: flex;
         justify-content: space-between;
@@ -362,5 +358,32 @@ canvas {
     .up-container,
     .throw-container {
         display: flex;
+    }
+}
+
+@media screen and (min-width: 720px) and (max-width: 1024px) {
+
+    #mobile-controls .left-container,
+    #mobile-controls .right-container,
+    #mobile-controls .up-container,
+    #mobile-controls .throw-container {
+        width: 72px;
+        height: 72px;
+    }
+
+    #mobile-controls .left-container {
+        left: 24px;
+    }
+
+    #mobile-controls .right-container {
+        left: 108px;
+    }
+
+    #mobile-controls .up-container {
+        right: 108px;
+    }
+
+    #mobile-controls .throw-container {
+        right: 24px;
     }
 }

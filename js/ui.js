@@ -322,20 +322,6 @@ function handleButtonRelease(key) {
     keyboard[key] = false;
 }
 
-// document.addEventListener('mouseup', () => resetKeyboard());
-// document.addEventListener('touchend', () => resetKeyboard());
-
-/**
- * Resets all keyboard input states.
- */
-// function resetKeyboard() {
-//     if (!keyboard) return;
-//     keyboard.LEFT = false;
-//     keyboard.RIGHT = false;
-//     keyboard.SPACE = false;
-//     keyboard.D = false;
-// }
-
 /**
  * Updates the visibility of mobile game keys based on play status.
  */

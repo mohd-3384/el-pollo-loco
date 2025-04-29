@@ -214,7 +214,9 @@ function isSmallScreenDesktop() {
  * @param {Object} params - Orientation and device status.
  */
 function handleOrientationSwitch({ isMobile, isPortrait, isSmallDesktop, popup, fullDiv, mobileControls }) {
-    if ((isMobile && isPortrait) || isSmallDesktop) {
+    const isSmallMobilePortrait = isMobile && isPortrait && window.innerWidth <= 720;
+
+    if (isSmallMobilePortrait || isSmallDesktop) {
         handleShowRotatePopup(popup, fullDiv, mobileControls);
     } else if (isMobile && !isPortrait) {
         handleMobileLandscape(popup, fullDiv, mobileControls);

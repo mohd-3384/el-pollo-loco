@@ -1,0 +1,1 @@
+El Pollo Loco ist ein 2D-Jump-and-Run-Browsergame. Sammle Coins und Salsa-Flaschen, weiche Gegnern aus, besiege Chickens durch Sprünge und den Endboss mit Flaschenwürfen. Umgesetzt in Vanilla JavaScript mit OOP-Struktur; Animations-Loop, Kollisionsabfragen und Sprite-Handling sorgen für flüssiges Gameplay. Statusleisten zeigen Health, Coins und Bottles.

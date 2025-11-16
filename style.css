@@ -319,6 +319,10 @@ canvas {
     }
 }
 
+.mail-to {
+    color: #ED6A36;
+}
+
 @media screen and (max-width: 720px) {
     #canvasWrapper {
         width: 100vw;
